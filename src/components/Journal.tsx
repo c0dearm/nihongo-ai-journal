@@ -1,7 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { JournalEntry, JLPTLevel } from "../types";
 import JlptSelector from "./JlptSelector";
-import { PlusIcon, BookOpenIcon, LoaderIcon, ChevronDownIcon, TrashIcon } from "./Icons";
+import {
+  PlusIcon,
+  BookOpenIcon,
+  LoaderIcon,
+  ChevronDownIcon,
+  TrashIcon,
+} from "./Icons";
 import { bind } from "wanakana";
 
 interface JournalProps {
@@ -28,7 +34,11 @@ interface EntryCardProps {
   onDelete: (id: string) => void;
 }
 
-const EntryCard: React.FC<EntryCardProps> = ({ entry, isInitiallyOpen, onDelete }) => {
+const EntryCard: React.FC<EntryCardProps> = ({
+  entry,
+  isInitiallyOpen,
+  onDelete,
+}) => {
   const [isOpen, setIsOpen] = useState(isInitiallyOpen);
   const feedbackId = `feedback-${entry.id}`;
 
@@ -45,7 +55,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, isInitiallyOpen, onDelete 
         className="w-full text-left p-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-lg cursor-pointer"
         onClick={() => setIsOpen((prev) => (entry.feedback ? !prev : prev))}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             setIsOpen((prev) => (entry.feedback ? !prev : prev));
           }
         }}
@@ -80,8 +90,8 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, isInitiallyOpen, onDelete 
               <TrashIcon className="h-5 w-5" />
             </button>
           </div>
-          </div>
         </div>
+      </div>
 
       <div
         id={feedbackId}

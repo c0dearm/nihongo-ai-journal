@@ -208,4 +208,3 @@ export const TrashIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     />
   </svg>
 );
-
