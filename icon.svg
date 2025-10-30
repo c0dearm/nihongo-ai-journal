@@ -1,0 +1,10 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:rgb(100,200,255);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(50,150,255);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <path d="M128,10 C61.8,10 10,61.8 10,128 C10,194.2 61.8,246 128,246 C145.6,246 162.4,242.2 177.6,235.6 L220,246 L210.8,203.6 C232.4,184.6 246,157.8 246,128 C246,61.8 194.2,10 128,10 Z" fill="url(#grad1)"/>
+  <text x="128" y="138" font-family="sans-serif" font-size="100" text-anchor="middle" dominant-baseline="middle" fill="white">語</text>
+</svg>
