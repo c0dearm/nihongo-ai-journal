@@ -100,6 +100,10 @@ const App: React.FC = () => {
     [jlptLevel, handleFetchFeedback],
   );
 
+  const handleDeleteEntry = useCallback((id: string) => {
+    setJournalEntries((prev) => prev.filter((entry) => entry.id !== id));
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -138,6 +142,7 @@ const App: React.FC = () => {
           addEntry={addJournalEntry}
           jlptLevel={jlptLevel}
           setJlptLevel={setJlptLevel}
+          onDeleteEntry={handleDeleteEntry}
         />
 
         <Settings

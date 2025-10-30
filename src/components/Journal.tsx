@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { JournalEntry, JLPTLevel } from "../types";
 import JlptSelector from "./JlptSelector";
-import { PlusIcon, BookOpenIcon, LoaderIcon, ChevronDownIcon } from "./Icons";
+import { PlusIcon, BookOpenIcon, LoaderIcon, ChevronDownIcon, TrashIcon } from "./Icons";
 
 interface JournalProps {
   entries: JournalEntry[];
   addEntry: (text: string) => void;
   jlptLevel: JLPTLevel;
   setJlptLevel: (level: JLPTLevel) => void;
+  onDeleteEntry: (id: string) => void;
 }
 
 const FeedbackItem: React.FC<{ title: string; children: React.ReactNode }> = ({
@@ -23,11 +24,19 @@ const FeedbackItem: React.FC<{ title: string; children: React.ReactNode }> = ({
 interface EntryCardProps {
   entry: JournalEntry;
   isInitiallyOpen: boolean;
+  onDelete: (id: string) => void;
 }
 
-const EntryCard: React.FC<EntryCardProps> = ({ entry, isInitiallyOpen }) => {
+const EntryCard: React.FC<EntryCardProps> = ({ entry, isInitiallyOpen, onDelete }) => {
   const [isOpen, setIsOpen] = useState(isInitiallyOpen);
   const feedbackId = `feedback-${entry.id}`;
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent the card from expanding/collapsing
+    if (window.confirm("Are you sure you want to delete this entry?")) {
+      onDelete(entry.id);
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md transition-all duration-300 hover:shadow-lg overflow-hidden">
@@ -56,6 +65,13 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, isInitiallyOpen }) => {
                 className={`h-5 w-5 text-gray-400 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
               />
             )}
+            <button
+              onClick={handleDeleteClick}
+              className="text-gray-400 hover:text-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 rounded-full p-1"
+              aria-label="Delete entry"
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </button>
@@ -149,6 +165,7 @@ const Journal: React.FC<JournalProps> = ({
   addEntry,
   jlptLevel,
   setJlptLevel,
+  onDeleteEntry,
 }) => {
   const [newEntryText, setNewEntryText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -216,6 +233,7 @@ const Journal: React.FC<JournalProps> = ({
               key={entry.id}
               entry={entry}
               isInitiallyOpen={index === 0}
+              onDelete={onDeleteEntry}
             />
           ))
         )}
