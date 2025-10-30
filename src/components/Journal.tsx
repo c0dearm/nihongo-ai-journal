@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { JournalEntry, JLPTLevel } from "../types";
 import JlptSelector from "./JlptSelector";
 import { PlusIcon, BookOpenIcon, LoaderIcon, ChevronDownIcon, TrashIcon } from "./Icons";
+import { bind } from "wanakana";
 
 interface JournalProps {
   entries: JournalEntry[];
@@ -40,10 +41,16 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, isInitiallyOpen, onDelete 
 
   return (
     <div className="bg-white rounded-lg shadow-md transition-all duration-300 hover:shadow-lg overflow-hidden">
-      <button
-        className="w-full text-left p-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-lg"
+      <div
+        className="w-full text-left p-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-lg cursor-pointer"
         onClick={() => setIsOpen((prev) => (entry.feedback ? !prev : prev))}
-        disabled={!entry.feedback || entry.isLoading}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            setIsOpen((prev) => (entry.feedback ? !prev : prev));
+          }
+        }}
+        role="button"
+        tabIndex={0}
         aria-expanded={isOpen}
         aria-controls={feedbackId}
       >
@@ -73,8 +80,8 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, isInitiallyOpen, onDelete 
               <TrashIcon className="h-5 w-5" />
             </button>
           </div>
+          </div>
         </div>
-      </button>
 
       <div
         id={feedbackId}
@@ -169,13 +176,21 @@ const Journal: React.FC<JournalProps> = ({
 }) => {
   const [newEntryText, setNewEntryText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      bind(textareaRef.current);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newEntryText.trim() || isSubmitting) return;
+    const textToSubmit = textareaRef.current?.value || "";
+    if (!textToSubmit.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
-    await addEntry(newEntryText);
+    await addEntry(textToSubmit);
     setNewEntryText("");
     setIsSubmitting(false);
   };
@@ -190,6 +205,7 @@ const Journal: React.FC<JournalProps> = ({
             onLevelChange={setJlptLevel}
           />
           <textarea
+            ref={textareaRef}
             value={newEntryText}
             onChange={(e) => setNewEntryText(e.target.value)}
             placeholder="今日の出来事を書いてみましょう..."
