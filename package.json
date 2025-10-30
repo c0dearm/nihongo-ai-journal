@@ -11,12 +11,12 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc"
   },
-      "dependencies": {
-        "@google/genai": "^1.25.0",
-        "react": "^19.2.0",
-        "react-dom": "^19.2.0",
-        "wanakana": "^5.3.1"
-      },
+  "dependencies": {
+    "@google/genai": "^1.25.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "wanakana": "^5.3.1"
+  },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.15",
     "@types/node": "^24.9.0",
