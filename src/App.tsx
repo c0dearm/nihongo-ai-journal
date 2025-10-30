@@ -14,6 +14,18 @@ const App: React.FC = () => {
   const [jlptLevel, setJlptLevel] = useState<JLPTLevel>(JLPTLevel.N5);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [jishoSearchTerm, setJishoSearchTerm] = useState("");
+
+  const handleJishoSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (jishoSearchTerm.trim()) {
+      window.open(
+        `https://jisho.org/search/${encodeURIComponent(jishoSearchTerm)}`,
+        "_blank",
+      );
+      setJishoSearchTerm(""); // Clear search term after opening Jisho
+    }
+  };
 
   const handleFetchFeedback = useCallback(
     async (entryId: string, text: string, level: JLPTLevel) => {
@@ -115,6 +127,38 @@ const App: React.FC = () => {
             <div className="flex items-center">
               {!isChatOpen && !isSettingsOpen && (
                 <>
+                  <form
+                    onSubmit={handleJishoSearch}
+                    className="flex items-center gap-2 mr-2"
+                  >
+                    <input
+                      type="text"
+                      value={jishoSearchTerm}
+                      onChange={(e) => setJishoSearchTerm(e.target.value)}
+                      placeholder="Search Jisho..."
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-32"
+                    />
+                    <button
+                      type="submit"
+                      className="p-2 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                      aria-label="Search Jisho.org"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                        />
+                      </svg>
+                    </button>
+                  </form>
                   <button
                     onClick={() => setIsChatOpen(true)}
                     className="p-2 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
