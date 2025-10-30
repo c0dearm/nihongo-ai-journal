@@ -1,0 +1,90 @@
+import React, { useState, useEffect, useRef } from "react";
+import { CloseIcon } from "./Icons";
+
+interface SettingsProps {
+  isOpen: boolean;
+  onSave: (apiKey: string) => void;
+  onClose: () => void;
+}
+
+const Settings: React.FC<SettingsProps> = ({ isOpen, onSave, onClose }) => {
+  const [apiKey, setApiKey] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const savedApiKey = localStorage.getItem("geminiApiKey") || "";
+      setApiKey(savedApiKey);
+      setTimeout(() => inputRef.current?.focus(), 300);
+    }
+  }, [isOpen]);
+
+  const handleSave = () => {
+    onSave(apiKey);
+  };
+
+  return (
+    <div
+      className={`fixed inset-0 z-60 ${isOpen ? "" : "pointer-events-none"}`}
+      onClick={onClose}
+      aria-modal="true"
+      role="dialog"
+    >
+      <div
+        className={`fixed top-0 right-0 w-full max-w-lg h-full bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-4 sm:p-6 border-b flex justify-between items-center flex-shrink-0">
+          <div>
+            <h2 className="text-xl font-bold text-gray-800">Settings</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Configure your application settings.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            aria-label="Close settings"
+          >
+            <CloseIcon className="h-6 w-6" />
+          </button>
+        </div>
+
+        <div className="flex-grow p-6 space-y-4 overflow-y-auto bg-gray-50">
+          <div>
+            <label
+              htmlFor="apiKey"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Gemini API Key
+            </label>
+            <input
+              ref={inputRef}
+              type="password"
+              id="apiKey"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Enter your API key"
+            />
+          </div>
+        </div>
+
+        <div className="p-4 bg-white border-t rounded-b-xl flex-shrink-0">
+          <div className="flex justify-end">
+            <button
+              onClick={handleSave}
+              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Settings;
