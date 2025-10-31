@@ -7,8 +7,11 @@ import {
   LoaderIcon,
   ChevronDownIcon,
   TrashIcon,
+  CalendarIcon,
 } from "./Icons";
 import { bind } from "wanakana";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface JournalProps {
   entries: JournalEntry[];
@@ -187,6 +190,24 @@ const EntryCard: React.FC<EntryCardProps> = ({
   );
 };
 
+const CustomDateRangeInput = React.forwardRef<
+  HTMLInputElement,
+  { value?: string; onClick?: () => void }
+>(({ value, onClick }, ref) => (
+  <div className="relative w-full cursor-pointer" onClick={onClick} ref={ref}>
+    <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+    <input
+      type="text"
+      className="w-full pl-12 pr-8 py-2 border border-gray-300 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white cursor-pointer"
+      value={value}
+      readOnly
+      placeholder="Select a date range"
+    />
+  </div>
+));
+
+CustomDateRangeInput.displayName = "CustomDateRangeInput";
+
 const Journal: React.FC<JournalProps> = ({
   entries,
   addEntry,
@@ -197,6 +218,29 @@ const Journal: React.FC<JournalProps> = ({
   const [newEntryText, setNewEntryText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const [startDate, setStartDate] = useState<Date | undefined>(sevenDaysAgo);
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+
+  const CustomDateRangeInput = React.forwardRef<
+    HTMLInputElement,
+    { value?: string; onClick?: () => void }
+  >(({ value, onClick }, ref) => (
+    <div className="relative w-full cursor-pointer" onClick={onClick} ref={ref}>
+      <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+      <input
+        type="text"
+        className="w-full pl-12 pr-8 py-2 border border-gray-300 rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white cursor-pointer"
+        value={value}
+        readOnly
+        placeholder="Select a date range"
+      />
+    </div>
+  ));
+
+  CustomDateRangeInput.displayName = "CustomDateRangeInput";
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -215,12 +259,23 @@ const Journal: React.FC<JournalProps> = ({
     setIsSubmitting(false);
   };
 
+  const filteredEntries = entries.filter((entry) => {
+    const entryDate = new Date(entry.date);
+    const start = startDate ? new Date(startDate.setHours(0, 0, 0, 0)) : null;
+    const end = endDate ? new Date(endDate.setHours(23, 59, 59, 999)) : null;
+
+    if (start && entryDate < start) {
+      return false;
+    }
+    if (end && entryDate > end) {
+      return false;
+    }
+    return true;
+  });
+
   return (
     <div className="flex flex-col h-full bg-white rounded-xl shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700">
       <div className="p-6 border-b dark:border-gray-700">
-        <h2 className="text-xl font-bold text-gray-800 mb-4 dark:text-gray-100">
-          My Journal
-        </h2>
         <form onSubmit={handleSubmit}>
           <JlptSelector
             selectedLevel={jlptLevel}
@@ -254,8 +309,30 @@ const Journal: React.FC<JournalProps> = ({
         </form>
       </div>
 
+      <div className="p-6 border-b dark:border-gray-700">
+        <h3 className="text-lg font-bold text-gray-800 mb-2 dark:text-gray-100">
+          Journal Entries
+        </h3>
+        <div className="flex items-center space-x-2">
+          <DatePicker
+            selected={startDate}
+            onChange={(dates: [Date | null, Date | null]) => {
+              const [start, end] = dates;
+              setStartDate(start ?? undefined);
+              setEndDate(end ?? undefined);
+            }}
+            startDate={startDate}
+            endDate={endDate}
+            selectsRange
+            dateFormat="yyyy/MM/dd"
+            isClearable={true}
+            customInput={<CustomDateRangeInput />}
+          />
+        </div>
+      </div>
+
       <div className="flex-grow p-2 space-y-2 overflow-y-auto bg-gray-50 rounded-b-xl dark:bg-gray-900">
-        {entries.length === 0 ? (
+        {filteredEntries.length === 0 ? (
           <div className="text-center text-gray-500 py-10 dark:text-gray-400">
             <BookOpenIcon className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -266,7 +343,7 @@ const Journal: React.FC<JournalProps> = ({
             </p>
           </div>
         ) : (
-          entries.map((entry, index) => (
+          filteredEntries.map((entry, index) => (
             <EntryCard
               key={entry.id}
               entry={entry}
