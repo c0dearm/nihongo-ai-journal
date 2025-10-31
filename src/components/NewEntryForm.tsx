@@ -9,6 +9,7 @@ interface NewEntryFormProps {
   jlptLevel: JLPTLevel;
   setJlptLevel: (level: JLPTLevel) => void;
   onEntryAdded: () => void; // Callback to close the form after adding an entry
+  onCancel: () => void; // Callback to cancel adding an entry and return to journal
 }
 
 const NewEntryForm: React.FC<NewEntryFormProps> = ({
@@ -16,6 +17,7 @@ const NewEntryForm: React.FC<NewEntryFormProps> = ({
   jlptLevel,
   setJlptLevel,
   onEntryAdded,
+  onCancel,
 }) => {
   const [newEntryText, setNewEntryText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,6 +75,13 @@ const NewEntryForm: React.FC<NewEntryFormProps> = ({
               Add Entry & Get Feedback
             </>
           )}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="mt-2 w-full flex items-center justify-center px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+        >
+          Cancel
         </button>
       </form>
     </div>

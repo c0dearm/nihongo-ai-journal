@@ -231,6 +231,7 @@ const App: React.FC = () => {
             jlptLevel={jlptLevel}
             setJlptLevel={setJlptLevel}
             onEntryAdded={() => setIsNewEntryFormOpen(false)}
+            onCancel={() => setIsNewEntryFormOpen(false)}
           />
         ) : (
           <Journal
