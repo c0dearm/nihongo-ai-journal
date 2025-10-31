@@ -31,16 +31,36 @@ const App: React.FC = () => {
     }
   };
 
-  const handleTextSelection = useCallback((event: MouseEvent) => {
-    const selection = window.getSelection();
-    const selectedText = selection?.toString().trim();
+  const handleTextSelection = useCallback(
+    (x: number, y: number) => {
+      const selection = window.getSelection();
+      const selectedText = selection?.toString().trim();
 
-    if (selectedText && selectedText.length > 0) {
-      setSelectedText(selectedText);
-      setShowJishoPopup(true);
-      setPopupPosition({ x: event.pageX, y: event.pageY });
-    }
-  }, []);
+      if (selectedText && selectedText.length > 0) {
+        setSelectedText(selectedText);
+        setShowJishoPopup(true);
+        setPopupPosition({ x, y });
+      }
+    },
+    [],
+  );
+
+  const handleMouseUp = useCallback(
+    (event: MouseEvent) => {
+      handleTextSelection(event.pageX, event.pageY);
+    },
+    [handleTextSelection],
+  );
+
+  const handleTouchEnd = useCallback(
+    (event: TouchEvent) => {
+      if (event.changedTouches.length > 0) {
+        const touch = event.changedTouches[0];
+        handleTextSelection(touch.pageX, touch.pageY);
+      }
+    },
+    [handleTextSelection],
+  );
 
   const handleFetchFeedback = useCallback(
     async (entryId: string, text: string, level: JLPTLevel) => {
@@ -101,11 +121,13 @@ const App: React.FC = () => {
   }, [jlptLevel]);
 
   useEffect(() => {
-    document.addEventListener("mouseup", handleTextSelection);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("touchend", handleTouchEnd);
     return () => {
-      document.removeEventListener("mouseup", handleTextSelection);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [handleTextSelection]);
+  }, [handleMouseUp, handleTouchEnd]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
