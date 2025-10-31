@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { JournalEntry, JLPTLevel, Theme } from "./types";
 import Journal from "./components/Journal";
 import Chat from "./components/Chat";
@@ -15,10 +15,6 @@ const App: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [jishoSearchTerm, setJishoSearchTerm] = useState("");
-  const [selectedText, setSelectedText] = useState<string | null>(null);
-  const [showJishoPopup, setShowJishoPopup] = useState(false);
-  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
-  const jishoPopupRef = useRef<HTMLDivElement>(null);
   const [theme, setTheme] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem("theme");
     return (savedTheme as Theme) || Theme.System;
@@ -34,34 +30,6 @@ const App: React.FC = () => {
       setJishoSearchTerm(""); // Clear search term after opening Jisho
     }
   };
-
-  const handleTextSelection = useCallback((x: number, y: number) => {
-    const selection = window.getSelection();
-    const selectedText = selection?.toString().trim();
-
-    if (selectedText && selectedText.length > 0) {
-      setSelectedText(selectedText);
-      setShowJishoPopup(true);
-      setPopupPosition({ x, y });
-    }
-  }, []);
-
-  const handleMouseUp = useCallback(
-    (event: MouseEvent) => {
-      handleTextSelection(event.pageX, event.pageY);
-    },
-    [handleTextSelection],
-  );
-
-  const handleTouchEnd = useCallback(
-    (event: TouchEvent) => {
-      if (event.changedTouches.length > 0) {
-        const touch = event.changedTouches[0];
-        handleTextSelection(touch.pageX, touch.pageY);
-      }
-    },
-    [handleTextSelection],
-  );
 
   const handleFetchFeedback = useCallback(
     async (entryId: string, text: string, level: JLPTLevel) => {
@@ -120,37 +88,6 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem("jlptLevel", jlptLevel);
   }, [jlptLevel]);
-
-  useEffect(() => {
-    document.addEventListener("mouseup", handleMouseUp);
-    document.addEventListener("touchend", handleTouchEnd);
-    return () => {
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("touchend", handleTouchEnd);
-    };
-  }, [handleMouseUp, handleTouchEnd]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        jishoPopupRef.current &&
-        !jishoPopupRef.current.contains(event.target as Node)
-      ) {
-        setShowJishoPopup(false);
-        setSelectedText(null);
-      }
-    };
-
-    if (showJishoPopup) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showJishoPopup]);
 
   useEffect(() => {
     if (
@@ -257,29 +194,6 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow container mx-auto p-4 sm:p-6 lg:p-8 relative">
-        {showJishoPopup && selectedText && (
-          <div
-            ref={jishoPopupRef}
-            style={{
-              position: "absolute",
-              left: popupPosition.x,
-              top: popupPosition.y,
-              zIndex: 1000,
-            }}
-            className="bg-blue-500 text-white px-3 py-1 rounded-md shadow-lg cursor-pointer hover:bg-blue-600 text-sm"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={() => {
-              window.open(
-                `https://jisho.org/search/${encodeURIComponent(selectedText)}`,
-                "_blank",
-              );
-              setShowJishoPopup(false);
-              setSelectedText(null);
-            }}
-          >
-            Search Jisho for &quot;{selectedText}&quot;
-          </div>
-        )}
         <Journal
           entries={journalEntries}
           addEntry={addJournalEntry}
