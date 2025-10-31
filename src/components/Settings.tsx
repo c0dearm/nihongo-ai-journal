@@ -8,6 +8,7 @@ interface SettingsProps {
   onClose: () => void;
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
+  onExportJournal: () => void;
 }
 
 const Settings: React.FC<SettingsProps> = ({
@@ -16,6 +17,7 @@ const Settings: React.FC<SettingsProps> = ({
   onClose,
   theme,
   onThemeChange,
+  onExportJournal,
 }) => {
   const [apiKey, setApiKey] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -121,7 +123,13 @@ const Settings: React.FC<SettingsProps> = ({
         </div>
 
         <div className="p-4 bg-white border-t rounded-b-xl flex-shrink-0 dark:bg-gray-800 dark:border-gray-700">
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center">
+            <button
+              onClick={onExportJournal}
+              className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
+            >
+              Backup Journal
+            </button>
             <button
               onClick={handleSave}
               className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

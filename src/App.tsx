@@ -148,6 +148,20 @@ const App: React.FC = () => {
     setJournalEntries((prev) => prev.filter((entry) => entry.id !== id));
   }, []);
 
+  const handleExportJournal = () => {
+    const json = JSON.stringify(journalEntries, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const filename = `journal-backup_${new Date().toISOString().replace(/:/g, "-")}.json`;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col dark:bg-gray-900">
       <header className="bg-gray-100 shadow-sm sticky top-0 z-50 dark:bg-gray-700">
@@ -223,6 +237,7 @@ const App: React.FC = () => {
           onClose={() => setIsSettingsOpen(false)}
           theme={theme}
           onThemeChange={setTheme}
+          onExportJournal={handleExportJournal}
         />
 
         <Chat
