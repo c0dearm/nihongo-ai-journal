@@ -208,7 +208,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-grow container mx-auto p-0 sm:p-6 lg:p-8 relative">
+      <main className="flex-grow container mx-auto py-4 px-0 sm:p-6 lg:p-8 relative">
         <Journal
           entries={journalEntries}
           addEntry={addJournalEntry}
