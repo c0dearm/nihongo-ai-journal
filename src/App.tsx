@@ -31,19 +31,16 @@ const App: React.FC = () => {
     }
   };
 
-  const handleTextSelection = useCallback(
-    (x: number, y: number) => {
-      const selection = window.getSelection();
-      const selectedText = selection?.toString().trim();
+  const handleTextSelection = useCallback((x: number, y: number) => {
+    const selection = window.getSelection();
+    const selectedText = selection?.toString().trim();
 
-      if (selectedText && selectedText.length > 0) {
-        setSelectedText(selectedText);
-        setShowJishoPopup(true);
-        setPopupPosition({ x, y });
-      }
-    },
-    [],
-  );
+    if (selectedText && selectedText.length > 0) {
+      setSelectedText(selectedText);
+      setShowJishoPopup(true);
+      setPopupPosition({ x, y });
+    }
+  }, []);
 
   const handleMouseUp = useCallback(
     (event: MouseEvent) => {
@@ -195,27 +192,23 @@ const App: React.FC = () => {
                 <>
                   <form
                     onSubmit={handleJishoSearch}
-                    className="flex items-center gap-2 mr-2"
+                    className="relative flex items-center mr-2"
                   >
                     <input
                       type="text"
                       value={jishoSearchTerm}
                       onChange={(e) => setJishoSearchTerm(e.target.value)}
                       placeholder="Search Jisho..."
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-32"
+                      className="px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-40"
                     />
-                    <button
-                      type="submit"
-                      className="p-2 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-                      aria-label="Search Jisho.org"
-                    >
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
-                        className="w-6 h-6"
+                        className="w-5 h-5 text-gray-400"
                       >
                         <path
                           strokeLinecap="round"
@@ -223,7 +216,7 @@ const App: React.FC = () => {
                           d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
                         />
                       </svg>
-                    </button>
+                    </div>
                   </form>
                   <button
                     onClick={() => setIsChatOpen(true)}
