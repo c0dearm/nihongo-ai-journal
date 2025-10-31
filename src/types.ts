@@ -35,3 +35,9 @@ export interface ChatMessage {
   role: "user" | "model";
   text: string;
 }
+
+export enum Theme {
+  System = "system",
+  Light = "light",
+  Dark = "dark",
+}

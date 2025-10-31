@@ -23,8 +23,12 @@ const FeedbackItem: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
 }) => (
   <div className="mt-4">
-    <h4 className="font-semibold text-gray-700 text-sm">{title}</h4>
-    <div className="mt-2 text-sm text-gray-600 space-y-2">{children}</div>
+    <h4 className="font-semibold text-gray-700 text-sm dark:text-gray-300">
+      {title}
+    </h4>
+    <div className="mt-2 text-sm text-gray-600 space-y-2 dark:text-gray-400">
+      {children}
+    </div>
   </div>
 );
 
@@ -50,7 +54,7 @@ const EntryCard: React.FC<EntryCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md transition-all duration-300 hover:shadow-lg overflow-hidden">
+    <div className="bg-white rounded-lg shadow-md transition-all duration-300 hover:shadow-lg overflow-hidden dark:bg-gray-800">
       <div
         className="w-full text-left p-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-lg cursor-pointer"
         onClick={() => setIsOpen((prev) => (entry.feedback ? !prev : prev))}
@@ -66,10 +70,10 @@ const EntryCard: React.FC<EntryCardProps> = ({
       >
         <div className="flex justify-between items-start">
           <div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {new Date(entry.date).toLocaleString()}
             </p>
-            <p className="mt-2 text-gray-700 whitespace-pre-wrap font-jp">
+            <p className="mt-2 text-gray-700 whitespace-pre-wrap font-jp dark:text-gray-300">
               {entry.originalText}
             </p>
           </div>
@@ -99,11 +103,13 @@ const EntryCard: React.FC<EntryCardProps> = ({
       >
         <div className="overflow-hidden">
           {entry.feedback && (
-            <div className="px-5 pb-5 border-t pt-4">
-              <h3 className="font-bold text-indigo-600">AIフィードバック</h3>
+            <div className="px-5 pb-5 border-t pt-4 dark:border-gray-700">
+              <h3 className="font-bold text-indigo-600 dark:text-indigo-400">
+                AIフィードバック
+              </h3>
 
               <FeedbackItem title="Corrected Text">
-                <p className="p-2 bg-green-50 rounded-md border border-green-200 font-jp">
+                <p className="p-2 bg-green-50 rounded-md border border-green-200 font-jp dark:bg-green-900/50 dark:border-green-800 dark:text-green-200">
                   {entry.feedback.correctedText}
                 </p>
               </FeedbackItem>
@@ -113,23 +119,25 @@ const EntryCard: React.FC<EntryCardProps> = ({
                   {entry.feedback.grammarFeedback.map((item, index) => (
                     <div
                       key={index}
-                      className="p-2 bg-yellow-50 border border-yellow-200 rounded-md"
+                      className="p-2 bg-yellow-50 border border-yellow-200 rounded-md dark:bg-yellow-900/50 dark:border-yellow-800"
                     >
                       <p>
                         <span className="font-semibold">Mistake:</span>{" "}
-                        <span className="text-red-600 font-jp">
+                        <span className="text-red-600 font-jp dark:text-red-400">
                           {item.mistake}
                         </span>
                       </p>
                       <p>
                         <span className="font-semibold">Correction:</span>{" "}
-                        <span className="text-green-600 font-jp">
+                        <span className="text-green-600 font-jp dark:text-green-400">
                           {item.correction}
                         </span>
                       </p>
                       <p>
                         <span className="font-semibold">Explanation:</span>{" "}
-                        {item.explanation}
+                        <span className="dark:text-gray-300">
+                          {item.explanation}
+                        </span>
                       </p>
                     </div>
                   ))}
@@ -141,23 +149,25 @@ const EntryCard: React.FC<EntryCardProps> = ({
                   {entry.feedback.vocabularyFeedback.map((item, index) => (
                     <div
                       key={index}
-                      className="p-2 bg-blue-50 border border-blue-200 rounded-md"
+                      className="p-2 bg-blue-50 border border-blue-200 rounded-md dark:bg-blue-900/50 dark:border-blue-800"
                     >
                       <p>
                         <span className="font-semibold">Word:</span>{" "}
-                        <span className="text-gray-600 font-jp">
+                        <span className="text-gray-600 font-jp dark:text-gray-400">
                           {item.word}
                         </span>
                       </p>
                       <p>
                         <span className="font-semibold">Suggestion:</span>{" "}
-                        <span className="text-indigo-600 font-jp">
+                        <span className="text-indigo-600 font-jp dark:text-indigo-400">
                           {item.suggestion}
                         </span>
                       </p>
                       <p>
                         <span className="font-semibold">Explanation:</span>{" "}
-                        {item.explanation}
+                        <span className="dark:text-gray-300">
+                          {item.explanation}
+                        </span>
                       </p>
                     </div>
                   ))}
@@ -165,7 +175,7 @@ const EntryCard: React.FC<EntryCardProps> = ({
               )}
 
               <FeedbackItem title="Overall Comment">
-                <p className="p-2 bg-gray-100 rounded-md border border-gray-200 italic">
+                <p className="p-2 bg-gray-100 rounded-md border border-gray-200 italic dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300">
                   &quot;{entry.feedback.overallComment}&quot;
                 </p>
               </FeedbackItem>
@@ -206,9 +216,11 @@ const Journal: React.FC<JournalProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-xl shadow-lg">
-      <div className="p-6 border-b">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">My Journal</h2>
+    <div className="flex flex-col h-full bg-white rounded-xl shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700">
+      <div className="p-6 border-b dark:border-gray-700">
+        <h2 className="text-xl font-bold text-gray-800 mb-4 dark:text-gray-100">
+          My Journal
+        </h2>
         <form onSubmit={handleSubmit}>
           <JlptSelector
             selectedLevel={jlptLevel}
@@ -219,7 +231,7 @@ const Journal: React.FC<JournalProps> = ({
             value={newEntryText}
             onChange={(e) => setNewEntryText(e.target.value)}
             placeholder="今日の出来事を書いてみましょう..."
-            className="w-full h-32 p-3 mt-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow resize-none"
+            className="w-full h-32 p-3 mt-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow resize-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
             disabled={isSubmitting}
           />
           <button
@@ -242,14 +254,14 @@ const Journal: React.FC<JournalProps> = ({
         </form>
       </div>
 
-      <div className="flex-grow p-6 space-y-4 overflow-y-auto bg-gray-50 rounded-b-xl">
+      <div className="flex-grow p-6 space-y-4 overflow-y-auto bg-gray-50 rounded-b-xl dark:bg-gray-900">
         {entries.length === 0 ? (
-          <div className="text-center text-gray-500 py-10">
+          <div className="text-center text-gray-500 py-10 dark:text-gray-400">
             <BookOpenIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">
               No journal entries yet
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Start by writing your first entry above.
             </p>
           </div>

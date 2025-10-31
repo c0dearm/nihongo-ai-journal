@@ -141,33 +141,35 @@ ${journalContext}
       role="dialog"
     >
       <div
-        className={`fixed top-0 right-0 w-full max-w-lg h-full bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 w-full max-w-lg h-full bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out dark:bg-gray-800 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 sm:p-6 border-b flex justify-between items-center flex-shrink-0">
+        <div className="p-4 sm:p-6 border-b flex justify-between items-center flex-shrink-0 dark:border-gray-700">
           <div>
-            <h2 className="text-xl font-bold text-gray-800">Journal Chat</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+              Journal Chat
+            </h2>
+            <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
               Ask me anything about your entries.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="p-2 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-gray-400 dark:hover:bg-gray-700"
             aria-label="Close chat"
           >
             <CloseIcon className="h-6 w-6" />
           </button>
         </div>
 
-        <div className="flex-grow p-6 space-y-4 overflow-y-auto bg-gray-50">
+        <div className="flex-grow p-6 space-y-4 overflow-y-auto bg-gray-50 dark:bg-gray-900">
           {messages.length === 0 ? (
-            <div className="text-center text-gray-500 py-10 h-full flex flex-col justify-center">
+            <div className="text-center text-gray-500 py-10 h-full flex flex-col justify-center dark:text-gray-400">
               <SparklesIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
+              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                 Chat is ready
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Ask a question to get started.
               </p>
             </div>
@@ -183,7 +185,7 @@ ${journalContext}
                   </div>
                 )}
                 <div
-                  className={`max-w-md p-3 rounded-lg ${msg.role === "user" ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-800"}`}
+                  className={`max-w-md p-3 rounded-lg ${msg.role === "user" ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200"}`}
                 >
                   {msg.role === "model" && msg.text === "" && isLoading ? (
                     <div className="flex items-center justify-center space-x-1.5 h-5">
@@ -206,7 +208,7 @@ ${journalContext}
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4 bg-white border-t rounded-b-xl flex-shrink-0">
+        <div className="p-4 bg-white border-t rounded-b-xl flex-shrink-0 dark:bg-gray-800 dark:border-gray-700">
           <form
             onSubmit={handleSendMessage}
             className="flex items-center gap-2"
@@ -217,7 +219,7 @@ ${journalContext}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your question..."
-              className="flex-grow p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow"
+              className="flex-grow p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
               disabled={isLoading}
             />
             <button

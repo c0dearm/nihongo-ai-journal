@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { JournalEntry, JLPTLevel } from "./types";
+import { JournalEntry, JLPTLevel, Theme } from "./types";
 import Journal from "./components/Journal";
 import Chat from "./components/Chat";
 import { getJournalFeedback, setApiKey } from "./services/geminiService";
@@ -19,6 +19,10 @@ const App: React.FC = () => {
   const [showJishoPopup, setShowJishoPopup] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const jishoPopupRef = useRef<HTMLDivElement>(null);
+  const [theme, setTheme] = useState<Theme>(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return (savedTheme as Theme) || Theme.System;
+  });
 
   const handleJishoSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +152,19 @@ const App: React.FC = () => {
     };
   }, [showJishoPopup]);
 
+  useEffect(() => {
+    if (
+      theme === Theme.Dark ||
+      (theme === Theme.System &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
   const handleSaveSettings = (apiKey: string) => {
     setApiKey(apiKey);
     localStorage.setItem("geminiApiKey", apiKey);
@@ -180,11 +197,11 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col dark:bg-gray-900">
+      <header className="bg-white shadow-sm sticky top-0 z-50 dark:bg-gray-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-800 flex items-center">
+            <h1 className="text-2xl font-bold text-gray-800 flex items-center dark:text-gray-100">
               <span className="text-red-500 mr-2">日本語</span>AIジャーナル
             </h1>
             <div className="flex items-center">
@@ -199,7 +216,7 @@ const App: React.FC = () => {
                       value={jishoSearchTerm}
                       onChange={(e) => setJishoSearchTerm(e.target.value)}
                       placeholder="Search Jisho..."
-                      className="px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-40"
+                      className="px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-40 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                     />
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <svg
@@ -220,14 +237,14 @@ const App: React.FC = () => {
                   </form>
                   <button
                     onClick={() => setIsChatOpen(true)}
-                    className="p-2 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                    className="p-2 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                     aria-label="Open journal chat"
                   >
                     <GeminiIcon className="w-6 h-6" />
                   </button>
                   <button
                     onClick={() => setIsSettingsOpen(true)}
-                    className="p-2 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ml-2"
+                    className="p-2 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ml-2 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                     aria-label="Open settings"
                   >
                     <SettingsIcon className="w-6 h-6" />
@@ -275,6 +292,8 @@ const App: React.FC = () => {
           isOpen={isSettingsOpen}
           onSave={handleSaveSettings}
           onClose={() => setIsSettingsOpen(false)}
+          theme={theme}
+          onThemeChange={setTheme}
         />
 
         <Chat
