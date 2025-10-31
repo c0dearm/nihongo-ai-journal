@@ -90,6 +90,21 @@ const App: React.FC = () => {
   }, [jlptLevel]);
 
   useEffect(() => {
+    const handleTextSelection = () => {
+      const selectedText = window.getSelection()?.toString().trim();
+      if (selectedText) {
+        setJishoSearchTerm(selectedText);
+      }
+    };
+
+    document.addEventListener("selectionchange", handleTextSelection);
+
+    return () => {
+      document.removeEventListener("selectionchange", handleTextSelection);
+    };
+  }, []);
+
+  useEffect(() => {
     if (
       theme === Theme.Dark ||
       (theme === Theme.System &&
