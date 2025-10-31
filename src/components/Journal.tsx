@@ -254,7 +254,7 @@ const Journal: React.FC<JournalProps> = ({
         </form>
       </div>
 
-      <div className="flex-grow p-6 space-y-4 overflow-y-auto bg-gray-50 rounded-b-xl dark:bg-gray-900">
+      <div className="flex-grow p-2 space-y-2 overflow-y-auto bg-gray-50 rounded-b-xl dark:bg-gray-900">
         {entries.length === 0 ? (
           <div className="text-center text-gray-500 py-10 dark:text-gray-400">
             <BookOpenIcon className="mx-auto h-12 w-12 text-gray-400" />
