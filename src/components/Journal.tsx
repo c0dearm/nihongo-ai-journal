@@ -202,10 +202,7 @@ const CustomDateRangeInput = React.forwardRef<
 
 CustomDateRangeInput.displayName = "CustomDateRangeInput";
 
-const Journal: React.FC<JournalProps> = ({
-  entries,
-  onDeleteEntry,
-}) => {
+const Journal: React.FC<JournalProps> = ({ entries, onDeleteEntry }) => {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const [startDate, setStartDate] = useState<Date | undefined>(sevenDaysAgo);

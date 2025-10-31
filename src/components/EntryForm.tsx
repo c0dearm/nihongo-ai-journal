@@ -4,7 +4,7 @@ import JlptSelector from "./JlptSelector";
 import { PlusIcon, LoaderIcon } from "./Icons";
 import { bind } from "wanakana";
 
-interface NewEntryFormProps {
+interface EntryFormProps {
   addEntry: (text: string) => void;
   jlptLevel: JLPTLevel;
   setJlptLevel: (level: JLPTLevel) => void;
@@ -12,7 +12,7 @@ interface NewEntryFormProps {
   onCancel: () => void; // Callback to cancel adding an entry and return to journal
 }
 
-const NewEntryForm: React.FC<NewEntryFormProps> = ({
+const EntryForm: React.FC<EntryFormProps> = ({
   addEntry,
   jlptLevel,
   setJlptLevel,
@@ -47,10 +47,7 @@ const NewEntryForm: React.FC<NewEntryFormProps> = ({
         Add New Journal Entry
       </h2>
       <form onSubmit={handleSubmit}>
-        <JlptSelector
-          selectedLevel={jlptLevel}
-          onLevelChange={setJlptLevel}
-        />
+        <JlptSelector selectedLevel={jlptLevel} onLevelChange={setJlptLevel} />
         <textarea
           ref={textareaRef}
           value={newEntryText}
@@ -88,4 +85,4 @@ const NewEntryForm: React.FC<NewEntryFormProps> = ({
   );
 };
 
-export default NewEntryForm;
+export default EntryForm;
