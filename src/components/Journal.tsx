@@ -1,23 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
-import { JournalEntry, JLPTLevel } from "../types";
-import JlptSelector from "./JlptSelector";
+import React, { useState } from "react";
+import { JournalEntry } from "../types";
 import {
-  PlusIcon,
   BookOpenIcon,
   LoaderIcon,
   ChevronDownIcon,
   TrashIcon,
   CalendarIcon,
 } from "./Icons";
-import { bind } from "wanakana";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 interface JournalProps {
   entries: JournalEntry[];
-  addEntry: (text: string) => void;
-  jlptLevel: JLPTLevel;
-  setJlptLevel: (level: JLPTLevel) => void;
   onDeleteEntry: (id: string) => void;
 }
 
@@ -210,15 +204,8 @@ CustomDateRangeInput.displayName = "CustomDateRangeInput";
 
 const Journal: React.FC<JournalProps> = ({
   entries,
-  addEntry,
-  jlptLevel,
-  setJlptLevel,
   onDeleteEntry,
 }) => {
-  const [newEntryText, setNewEntryText] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const [startDate, setStartDate] = useState<Date | undefined>(sevenDaysAgo);
@@ -242,23 +229,6 @@ const Journal: React.FC<JournalProps> = ({
 
   CustomDateRangeInput.displayName = "CustomDateRangeInput";
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      bind(textareaRef.current);
-    }
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const textToSubmit = textareaRef.current?.value || "";
-    if (!textToSubmit.trim() || isSubmitting) return;
-
-    setIsSubmitting(true);
-    await addEntry(textToSubmit);
-    setNewEntryText("");
-    setIsSubmitting(false);
-  };
-
   const filteredEntries = entries.filter((entry) => {
     const entryDate = new Date(entry.date);
     const start = startDate ? new Date(startDate.setHours(0, 0, 0, 0)) : null;
@@ -275,40 +245,6 @@ const Journal: React.FC<JournalProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-white rounded-xl shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700">
-      <div className="p-6 border-b dark:border-gray-700">
-        <form onSubmit={handleSubmit}>
-          <JlptSelector
-            selectedLevel={jlptLevel}
-            onLevelChange={setJlptLevel}
-          />
-          <textarea
-            ref={textareaRef}
-            value={newEntryText}
-            onChange={(e) => setNewEntryText(e.target.value)}
-            placeholder="今日の出来事を書いてみましょう..."
-            className="w-full h-32 p-3 mt-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow resize-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-            disabled={isSubmitting}
-          />
-          <button
-            type="submit"
-            disabled={!newEntryText.trim() || isSubmitting}
-            className="mt-2 w-full flex items-center justify-center px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-          >
-            {isSubmitting ? (
-              <>
-                <LoaderIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-                Analyzing...
-              </>
-            ) : (
-              <>
-                <PlusIcon className="mr-2 h-5 w-5" />
-                Add Entry & Get Feedback
-              </>
-            )}
-          </button>
-        </form>
-      </div>
-
       <div className="p-6 border-b dark:border-gray-700">
         <h3 className="text-lg font-bold text-gray-800 mb-2 dark:text-gray-100">
           Journal Entries

@@ -2,8 +2,9 @@ import React, { useState, useCallback, useEffect } from "react";
 import { JournalEntry, JLPTLevel, Theme } from "./types";
 import Journal from "./components/Journal";
 import Chat from "./components/Chat";
+import NewEntryForm from "./components/NewEntryForm";
 import { getJournalFeedback, setApiKey } from "./services/geminiService";
-import { GeminiIcon, SettingsIcon } from "./components/Icons";
+import { GeminiIcon, SettingsIcon, PencilIcon } from "./components/Icons";
 import Settings from "./components/Settings";
 
 const App: React.FC = () => {
@@ -14,6 +15,7 @@ const App: React.FC = () => {
   const [jlptLevel, setJlptLevel] = useState<JLPTLevel>(JLPTLevel.N5);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isNewEntryFormOpen, setIsNewEntryFormOpen] = useState(false);
   const [jishoSearchTerm, setJishoSearchTerm] = useState("");
   const [theme, setTheme] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -223,13 +225,29 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow container mx-auto py-4 px-0 sm:p-6 lg:p-8 relative">
-        <Journal
-          entries={journalEntries}
-          addEntry={addJournalEntry}
-          jlptLevel={jlptLevel}
-          setJlptLevel={setJlptLevel}
-          onDeleteEntry={handleDeleteEntry}
-        />
+        {isNewEntryFormOpen ? (
+          <NewEntryForm
+            addEntry={addJournalEntry}
+            jlptLevel={jlptLevel}
+            setJlptLevel={setJlptLevel}
+            onEntryAdded={() => setIsNewEntryFormOpen(false)}
+          />
+        ) : (
+          <Journal
+            entries={journalEntries}
+            onDeleteEntry={handleDeleteEntry}
+          />
+        )}
+
+        {!isNewEntryFormOpen && (
+          <button
+            onClick={() => setIsNewEntryFormOpen(true)}
+            className="fixed bottom-6 right-6 bg-indigo-600 text-white p-4 rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            aria-label="Add new journal entry"
+          >
+            <PencilIcon className="h-6 w-6" />
+          </button>
+        )}
 
         <Settings
           isOpen={isSettingsOpen}
