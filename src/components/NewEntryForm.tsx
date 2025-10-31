@@ -35,10 +35,10 @@ const NewEntryForm: React.FC<NewEntryFormProps> = ({
     if (!textToSubmit.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
+    onEntryAdded(); // Call the callback to close the form immediately
     await addEntry(textToSubmit);
     setNewEntryText("");
     setIsSubmitting(false);
-    onEntryAdded(); // Call the callback to close the form
   };
 
   return (
