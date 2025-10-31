@@ -150,7 +150,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col dark:bg-gray-900">
-      <header className="bg-white shadow-sm sticky top-0 z-50 dark:bg-gray-800">
+      <header className="bg-gray-100 shadow-sm sticky top-0 z-50 dark:bg-gray-700">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-bold text-gray-800 flex items-center dark:text-gray-100">
