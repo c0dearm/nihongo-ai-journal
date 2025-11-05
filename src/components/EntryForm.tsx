@@ -10,6 +10,7 @@ interface EntryFormProps {
 
 const EntryForm: React.FC<EntryFormProps> = ({ isOpen, onClose, addEntry }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [entryText, setEntryText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const wanakanaRef = useCallback((node: HTMLTextAreaElement) => {
@@ -30,6 +31,7 @@ const EntryForm: React.FC<EntryFormProps> = ({ isOpen, onClose, addEntry }) => {
     if (textareaRef.current) {
       textareaRef.current.value = "";
     }
+    setEntryText(""); // Clear the entryText state as well
     setIsSubmitting(false);
   };
 
@@ -65,13 +67,15 @@ const EntryForm: React.FC<EntryFormProps> = ({ isOpen, onClose, addEntry }) => {
         <form onSubmit={handleSubmit}>
           <textarea
             ref={wanakanaRef}
+            value={entryText}
+            onChange={(e) => setEntryText(e.target.value)}
             placeholder="今日の出来事を書いてみましょう..."
             className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow resize-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
             disabled={isSubmitting}
           />
           <button
             type="submit"
-            disabled={!textareaRef.current?.value.trim() || isSubmitting}
+            disabled={!entryText.trim() || isSubmitting}
             className="mt-4 w-full flex items-center justify-center px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
           >
             {isSubmitting ? (

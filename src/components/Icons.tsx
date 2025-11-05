@@ -64,7 +64,6 @@ export const LoaderIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="animate-spin"
     {...props}
   >
     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
