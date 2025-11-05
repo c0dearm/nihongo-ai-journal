@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { JournalEntry, ChatMessage } from "../types";
 import { GoogleGenAI, Chat as GeminiChat } from "@google/genai";
+import { bind } from "wanakana";
 import {
   UserIcon,
   SparklesIcon,
@@ -22,6 +23,13 @@ const Chat: React.FC<ChatProps> = ({ journalEntries, isOpen, onClose }) => {
   const chatRef = useRef<GeminiChat | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      bind(inputRef.current);
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -33,16 +41,16 @@ const Chat: React.FC<ChatProps> = ({ journalEntries, isOpen, onClose }) => {
     const apiKey = localStorage.getItem("geminiApiKey");
     if (!apiKey) {
       console.error("Gemini API key not found in local storage.");
-      // Optionally, you could show a message to the user in the chat window
       return;
     }
 
     const ai = new GoogleGenAI({ apiKey });
-
     const journalContext = journalEntries
       .map(
         (entry) =>
-          `Date: ${new Date(entry.date).toLocaleDateString()}\nEntry:\n${entry.originalText}\n---`,
+          `Date: ${new Date(
+            entry.date,
+          ).toLocaleDateString()}\nEntry:\n${entry.originalText}\n---`,
       )
       .join("\n\n");
 
@@ -63,20 +71,22 @@ ${journalContext}
         systemInstruction: systemInstruction,
       },
     });
+  }, [journalEntries]);
 
-    if (messages.length > 0) {
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else if (journalEntries.length > 0) {
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now().toString(),
           role: "model",
-          text: "Your journal has been updated. I am now aware of your new entries. How can I help?",
+          text: "日記のことでも何でも、何でも聞いてください。ぜひ試してみてください！",
         },
       ]);
-    } else {
-      setMessages([]);
     }
-  }, [journalEntries, messages.length]);
+  }, [journalEntries]);
 
   useEffect(() => {
     if (isOpen) {
@@ -88,10 +98,12 @@ ${journalContext}
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
+    const text = inputRef.current?.value || "";
+
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: "user",
-      text: input,
+      text: text,
     };
     const modelMessageId = (Date.now() + 1).toString();
 
@@ -107,7 +119,7 @@ ${journalContext}
       if (!chatRef.current) throw new Error("Chat not initialized");
 
       const stream = await chatRef.current.sendMessageStream({
-        message: input,
+        message: text,
       });
 
       let modelResponse = "";
