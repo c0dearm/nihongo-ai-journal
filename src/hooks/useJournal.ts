@@ -1,23 +1,34 @@
 import { useState, useEffect, useCallback } from "react";
-import { JournalEntry, JLPTLevel } from "../types";
-import { getJournalFeedback } from "../services/geminiService";
-import { LOCAL_STORAGE_KEYS } from "../constants";
+import { JournalEntry, JLPTLevel, LocalStorageKeys } from "../types";
+import { useGemini } from "../hooks/useGemini";
 
 export default function useJournal() {
+  const { getJournalFeedback, ai } = useGemini();
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.JOURNAL_ENTRIES);
+    const saved = localStorage.getItem(LocalStorageKeys.journalEntries);
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
     localStorage.setItem(
-      LOCAL_STORAGE_KEYS.JOURNAL_ENTRIES,
+      LocalStorageKeys.journalEntries,
       JSON.stringify(journalEntries),
     );
   }, [journalEntries]);
 
   const handleFetchFeedback = useCallback(
     async (entryId: string, text: string, level: JLPTLevel) => {
+      if (!ai) {
+        console.error("API key not set. Cannot fetch journal feedback.");
+        setJournalEntries((prev) =>
+          prev.map((entry) =>
+            entry.id === entryId
+              ? { ...entry, isLoading: false } // Stop loading, but don't show error feedback yet
+              : entry,
+          ),
+        );
+        return;
+      }
       try {
         const feedback = await getJournalFeedback(text, level);
         setJournalEntries((prev) =>
@@ -46,7 +57,7 @@ export default function useJournal() {
         );
       }
     },
-    [],
+    [getJournalFeedback, ai],
   );
 
   const addJournalEntry = useCallback(

@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { JournalEntry, ChatMessage } from "../types";
-import { startChat, sendChatMessage } from "../services/geminiService";
+import { useGemini } from "../hooks/useGemini";
 import { bind } from "wanakana";
 
 export default function useChat(
   journalEntries: JournalEntry[],
   isOpen: boolean,
 ) {
+  const { startChat, sendChatMessage, ai } = useGemini();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,14 +28,14 @@ export default function useChat(
   useEffect(scrollToBottom, [messages]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && ai) {
       try {
         startChat(journalEntries);
       } catch (error) {
         console.error("Failed to start chat:", error);
       }
     }
-  }, [isOpen, journalEntries]);
+  }, [isOpen, journalEntries, startChat, ai]);
 
   useEffect(() => {
     if (isInitialMount.current) {

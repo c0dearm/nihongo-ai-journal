@@ -42,3 +42,10 @@ export enum Theme {
   Light = "light",
   Dark = "dark",
 }
+
+export enum LocalStorageKeys {
+  journalEntries = "journalEntries",
+  geminiApiKey = "geminiApiKey",
+  jlptLevel = "jlptLevel",
+  theme = "theme",
+}

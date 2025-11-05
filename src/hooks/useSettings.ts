@@ -1,28 +1,21 @@
 import { useState, useEffect } from "react";
-import { JLPTLevel, Theme } from "../types";
-import { setApiKey as setGeminiApiKey } from "../services/geminiService";
-import { LOCAL_STORAGE_KEYS } from "../constants";
+import { JLPTLevel, Theme, LocalStorageKeys } from "../types";
+import { useGemini } from "../hooks/useGemini";
 
 export default function useSettings() {
+  const { setApiKey: setGeminiApiKey } = useGemini();
   const [jlptLevel, setJlptLevel] = useState<JLPTLevel>(() => {
-    const savedJlptLevel = localStorage.getItem(LOCAL_STORAGE_KEYS.JLPT_LEVEL);
+    const savedJlptLevel = localStorage.getItem(LocalStorageKeys.jlptLevel);
     return (savedJlptLevel as JLPTLevel) || JLPTLevel.N5;
   });
 
   const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem(LOCAL_STORAGE_KEYS.THEME);
+    const savedTheme = localStorage.getItem(LocalStorageKeys.theme);
     return (savedTheme as Theme) || Theme.System;
   });
 
   useEffect(() => {
-    const savedApiKey = localStorage.getItem(LOCAL_STORAGE_KEYS.GEMINI_API_KEY);
-    if (savedApiKey) {
-      setGeminiApiKey(savedApiKey);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.JLPT_LEVEL, jlptLevel);
+    localStorage.setItem(LocalStorageKeys.jlptLevel, jlptLevel);
   }, [jlptLevel]);
 
   useEffect(() => {
@@ -35,12 +28,12 @@ export default function useSettings() {
     } else {
       document.documentElement.classList.remove("dark");
     }
-    localStorage.setItem(LOCAL_STORAGE_KEYS.THEME, theme);
+    localStorage.setItem(LocalStorageKeys.theme, theme);
   }, [theme]);
 
   const saveSettings = (apiKey: string) => {
     setGeminiApiKey(apiKey);
-    localStorage.setItem(LOCAL_STORAGE_KEYS.GEMINI_API_KEY, apiKey);
+    localStorage.setItem(LocalStorageKeys.geminiApiKey, apiKey);
   };
 
   return {
