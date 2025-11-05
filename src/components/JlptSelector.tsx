@@ -19,13 +19,7 @@ const JlptSelector: React.FC<JlptSelectorProps> = ({
         Your JLPT Level
       </label>
       <div className="mt-1 grid grid-cols-5 gap-2">
-        {[
-          JLPTLevel.N5,
-          JLPTLevel.N4,
-          JLPTLevel.N3,
-          JLPTLevel.N2,
-          JLPTLevel.N1,
-        ].map((level) => (
+        {Object.values(JLPTLevel).map((level) => (
           <button
             key={level}
             type="button"

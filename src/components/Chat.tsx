@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import { JournalEntry, ChatMessage } from "../types";
-import { startChat, sendChatMessage } from "../services/geminiService";
-import { bind } from "wanakana";
+import React from "react";
+import { JournalEntry } from "../types";
+import useChat from "../hooks/useChat";
 import {
   UserIcon,
   SparklesIcon,
@@ -17,93 +16,15 @@ interface ChatProps {
 }
 
 const Chat: React.FC<ChatProps> = ({ journalEntries, isOpen, onClose }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const isInitialMount = useRef(true);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      bind(inputRef.current);
-    }
-  }, []);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(scrollToBottom, [messages]);
-
-  useEffect(() => {
-    if (isOpen) {
-      try {
-        startChat(journalEntries);
-      } catch (error) {
-        console.error("Failed to start chat:", error);
-      }
-    }
-  }, [isOpen, journalEntries]);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    } else {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          role: "model",
-          text: "日記のことでも何でも、何でも聞いてください。ぜひ試してみてください！",
-        },
-      ]);
-    }
-  }, []);
-
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
-
-    const text = inputRef.current?.value || "";
-
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: "user",
-      text: text,
-    };
-    const modelMessageId = (Date.now() + 1).toString();
-
-    setMessages((prev) => [
-      ...prev,
-      userMessage,
-      { id: modelMessageId, role: "model", text: "" },
-    ]);
-    setInput("");
-    setIsLoading(true);
-
-    try {
-      let modelResponse = "";
-      await sendChatMessage(text, (chunk) => {
-        modelResponse += chunk;
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === modelMessageId ? { ...msg, text: modelResponse } : msg,
-          ),
-        );
-      });
-    } catch (error) {
-      console.error("Error sending chat message:", error);
-      const errorMessage = "Sorry, I encountered an error. Please try again.";
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === modelMessageId ? { ...msg, text: errorMessage } : msg,
-        ),
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    messages,
+    input,
+    isLoading,
+    messagesEndRef,
+    inputRef,
+    handleSendMessage,
+    setInput,
+  } = useChat(journalEntries, isOpen);
 
   return (
     <div
@@ -113,7 +34,9 @@ const Chat: React.FC<ChatProps> = ({ journalEntries, isOpen, onClose }) => {
       role="dialog"
     >
       <div
-        className={`fixed top-0 right-0 w-full max-w-lg h-full bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out dark:bg-gray-800 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 w-full max-w-lg h-full bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out dark:bg-gray-800 ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-4 sm:px-6 lg:px-8 py-4 border-b flex justify-between items-center flex-shrink-0 dark:border-gray-700">
@@ -148,7 +71,9 @@ const Chat: React.FC<ChatProps> = ({ journalEntries, isOpen, onClose }) => {
             messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex items-start gap-3 ${msg.role === "user" ? "justify-end" : ""}`}
+                className={`flex items-start gap-3 ${
+                  msg.role === "user" ? "justify-end" : ""
+                }`}
               >
                 {msg.role === "model" && (
                   <div className="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center">
@@ -156,7 +81,11 @@ const Chat: React.FC<ChatProps> = ({ journalEntries, isOpen, onClose }) => {
                   </div>
                 )}
                 <div
-                  className={`max-w-md p-3 rounded-lg ${msg.role === "user" ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200"}`}
+                  className={`max-w-md p-3 rounded-lg ${
+                    msg.role === "user"
+                      ? "bg-indigo-600 text-white"
+                      : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                  }`}
                 >
                   {msg.role === "model" && msg.text === "" && isLoading ? (
                     <div className="flex items-center justify-center space-x-1.5 h-5">

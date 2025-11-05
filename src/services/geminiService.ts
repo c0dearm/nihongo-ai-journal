@@ -1,12 +1,9 @@
-import { GoogleGenAI, Type, Chat as GeminiChat } from "@google/genai";
+import { GoogleGenAI, Chat as GeminiChat } from "@google/genai";
 import { Feedback, JLPTLevel, JournalEntry } from "../types";
+import { Type } from "@google/genai";
 
 let ai: GoogleGenAI;
 let chat: GeminiChat | null = null;
-
-export const setApiKey = (apiKey: string) => {
-  ai = new GoogleGenAI({ apiKey });
-};
 
 const feedbackSchema = {
   type: Type.OBJECT,
@@ -76,6 +73,10 @@ const feedbackSchema = {
     "overallComment",
     "jlptScore",
   ],
+};
+
+export const setApiKey = (apiKey: string) => {
+  ai = new GoogleGenAI({ apiKey });
 };
 
 export const getJournalFeedback = async (
