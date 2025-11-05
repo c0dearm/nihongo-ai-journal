@@ -86,7 +86,7 @@ ${journalContext}
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
-    } else if (journalEntries.length > 0) {
+    } else {
       setMessages((prev) => [
         ...prev,
         {
@@ -96,13 +96,7 @@ ${journalContext}
         },
       ]);
     }
-  }, [journalEntries]);
-
-  useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
-  }, [isOpen]);
+  }, []);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
