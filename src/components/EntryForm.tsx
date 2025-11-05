@@ -3,16 +3,12 @@ import { PlusIcon, LoaderIcon } from "./Icons";
 import { bind } from "wanakana";
 
 interface EntryFormProps {
+  isOpen: boolean;
+  onClose: () => void;
   addEntry: (text: string) => void;
-  onEntryAdded: () => void; // Callback to close the form after adding an entry
-  onCancel: () => void; // Callback to cancel adding an entry and return to journal
 }
 
-const EntryForm: React.FC<EntryFormProps> = ({
-  addEntry,
-  onEntryAdded,
-  onCancel,
-}) => {
+const EntryForm: React.FC<EntryFormProps> = ({ isOpen, onClose, addEntry }) => {
   const [newEntryText, setNewEntryText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -29,51 +25,76 @@ const EntryForm: React.FC<EntryFormProps> = ({
     if (!textToSubmit.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
-    onEntryAdded(); // Call the callback to close the form immediately
+    onClose(); // Close the modal immediately
     await addEntry(textToSubmit);
     setNewEntryText("");
     setIsSubmitting(false);
   };
 
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
   return (
-    <div className="p-6 bg-white rounded-xl shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4 dark:text-gray-100">
-        Add New Journal Entry
-      </h2>
-      <form onSubmit={handleSubmit}>
-        <textarea
-          ref={textareaRef}
-          value={newEntryText}
-          onChange={(e) => setNewEntryText(e.target.value)}
-          placeholder="今日の出来事を書いてみましょう..."
-          className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow resize-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-          disabled={isSubmitting}
-        />
-        <button
-          type="submit"
-          disabled={!newEntryText.trim() || isSubmitting}
-          className="mt-2 w-full flex items-center justify-center px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-        >
-          {isSubmitting ? (
-            <>
-              <LoaderIcon className="-ml-1 mr-3 h-5 w-5 animate-spin text-white" />
-              Analyzing...
-            </>
-          ) : (
-            <>
-              <PlusIcon className="mr-2 h-5 w-5" />
-              Add Entry & Get Feedback
-            </>
-          )}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="mt-2 w-full flex items-center justify-center px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
-        >
-          Cancel
-        </button>
-      </form>
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+      <div
+        ref={modalRef}
+        className="relative p-6 bg-white rounded-xl shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700 max-w-lg w-full mx-4"
+      >
+        <form onSubmit={handleSubmit}>
+          <textarea
+            ref={textareaRef}
+            value={newEntryText}
+            onChange={(e) => setNewEntryText(e.target.value)}
+            placeholder="今日の出来事を書いてみましょう..."
+            className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow resize-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+            disabled={isSubmitting}
+          />
+          <button
+            type="submit"
+            disabled={!newEntryText.trim() || isSubmitting}
+            className="mt-4 w-full flex items-center justify-center px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+          >
+            {isSubmitting ? (
+              <>
+                <LoaderIcon className="-ml-1 mr-3 h-5 w-5 animate-spin text-white" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <PlusIcon className="mr-2 h-5 w-5" />
+                Add Entry
+              </>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="mt-2 w-full flex items-center justify-center px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+          >
+            Cancel
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

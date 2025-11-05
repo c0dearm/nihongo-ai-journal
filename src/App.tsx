@@ -202,25 +202,21 @@ const App: React.FC = () => {
       </header>
 
       <main className="flex-grow container mx-auto py-4 px-0 sm:p-6 lg:p-8 relative">
-        {isEntryFormOpen ? (
-          <EntryForm
-            addEntry={addJournalEntry}
-            onEntryAdded={() => setIsEntryFormOpen(false)}
-            onCancel={() => setIsEntryFormOpen(false)}
-          />
-        ) : (
-          <Journal entries={journalEntries} onDeleteEntry={handleDeleteEntry} />
-        )}
+        <Journal entries={journalEntries} onDeleteEntry={handleDeleteEntry} />
 
-        {!isEntryFormOpen && (
-          <button
-            onClick={() => setIsEntryFormOpen(true)}
-            className="fixed bottom-6 right-6 bg-indigo-600 text-white p-4 rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-            aria-label="Add new journal entry"
-          >
-            <PencilIcon className="h-6 w-6" />
-          </button>
-        )}
+        <button
+          onClick={() => setIsEntryFormOpen(true)}
+          className="fixed bottom-6 right-6 bg-indigo-600 text-white p-4 rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+          aria-label="Add new journal entry"
+        >
+          <PencilIcon className="h-6 w-6" />
+        </button>
+
+        <EntryForm
+          isOpen={isEntryFormOpen}
+          onClose={() => setIsEntryFormOpen(false)}
+          addEntry={addJournalEntry}
+        />
 
         <Settings
           isOpen={isSettingsOpen}
