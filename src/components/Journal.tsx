@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { JournalEntry } from "../types";
+import { JournalEntry, JLPTLevel } from "../types";
 import {
   BookOpenIcon,
   LoaderIcon,
@@ -9,6 +9,14 @@ import {
 } from "./Icons";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+
+const jlptLevelColors: Record<JLPTLevel, { bg: string; text: string }> = {
+  [JLPTLevel.N5]: { bg: "bg-blue-100", text: "text-blue-800" },
+  [JLPTLevel.N4]: { bg: "bg-green-100", text: "text-green-800" },
+  [JLPTLevel.N3]: { bg: "bg-yellow-100", text: "text-yellow-800" },
+  [JLPTLevel.N2]: { bg: "bg-orange-100", text: "text-orange-800" },
+  [JLPTLevel.N1]: { bg: "bg-red-100", text: "text-red-800" },
+};
 
 interface JournalProps {
   entries: JournalEntry[];
@@ -66,10 +74,24 @@ const EntryCard: React.FC<EntryCardProps> = ({
         aria-controls={feedbackId}
       >
         <div className="flex justify-between items-start">
-          <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {new Date(entry.date).toLocaleString()}
-            </p>
+          <div className="flex flex-col">
+            <div className="flex items-center space-x-2">
+              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                {new Date(entry.date).toLocaleString()}
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-full text-xs font-semibold ${jlptLevelColors[entry.jlptLevel].bg} ${jlptLevelColors[entry.jlptLevel].text}`}
+              >
+                {entry.jlptLevel}
+              </span>
+              {entry.feedback?.jlptScore !== undefined && (
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs font-semibold ${entry.feedback.jlptScore >= 80 ? "bg-green-100 text-green-800" : entry.feedback.jlptScore >= 60 ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}
+                >
+                  {entry.feedback.jlptScore}%
+                </span>
+              )}
+            </div>
             <p className="mt-2 text-gray-700 whitespace-pre-wrap font-jp dark:text-gray-300">
               {entry.originalText}
             </p>

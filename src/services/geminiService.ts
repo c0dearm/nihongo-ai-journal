@@ -63,12 +63,17 @@ const feedbackSchema = {
       type: Type.STRING,
       description: `A brief, encouraging overall comment on the journal entry for a ${JLPTLevel} learner.`,
     },
+    jlptScore: {
+      type: Type.NUMBER,
+      description: `A score from 0 to 100 representing the correctness of the entry for a ${JLPTLevel} learner.`,
+    },
   },
   required: [
     "correctedText",
     "grammarFeedback",
     "vocabularyFeedback",
     "overallComment",
+    "jlptScore",
   ],
 };
 
@@ -86,6 +91,7 @@ export const getJournalFeedback = async (
     Please analyze it and provide feedback in the specified JSON format.
     Your explanations should be simple and easy for a ${level} learner to understand.
     Use English for all explanations and feedback.
+    Also, provide a 'jlptScore' from 0 to 100, indicating the correctness of the entry for a ${level} learner.
 
     Journal Entry:
     ---

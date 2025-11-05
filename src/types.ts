@@ -19,6 +19,7 @@ export interface Feedback {
     explanation: string;
   }[];
   overallComment: string;
+  jlptScore: number;
 }
 
 export interface JournalEntry {
