@@ -102,7 +102,7 @@ const EntryCard: React.FC<EntryCardProps> = ({
             )}
             {entry.feedback && (
               <ChevronDownIcon
-                className={`h-5 w-5 text-gray-400 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                className={`h-5 w-5 text-gray-400 transition-transform duration-300 ${isOpen ? "rotate-90" : ""}`}
               />
             )}
             <button
