@@ -35,6 +35,9 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const handleTextSelection = () => {
+      if (isEntryFormOpen) {
+        return; // Do not update jishoSearchTerm if EntryForm is open
+      }
       const selectedText = window.getSelection()?.toString().trim();
       if (selectedText) {
         setJishoSearchTerm(selectedText);
@@ -46,7 +49,7 @@ const App: React.FC = () => {
     return () => {
       document.removeEventListener("selectionchange", handleTextSelection);
     };
-  }, []);
+  }, [isEntryFormOpen]);
 
   const handleFetchFeedback = useCallback(
     async (entryId: string, text: string, level: JLPTLevel) => {
@@ -67,6 +70,7 @@ const App: React.FC = () => {
           vocabularyFeedback: [],
           overallComment:
             "An error occurred while getting feedback from the AI. Please try again.",
+          jlptScore: 0,
         };
         setJournalEntries((prev) =>
           prev.map((entry) =>
