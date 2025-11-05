@@ -6,6 +6,7 @@ import EntryForm from "./components/EntryForm";
 import { getJournalFeedback, setApiKey } from "./services/geminiService";
 import { GeminiIcon, SettingsIcon, PencilIcon } from "./components/Icons";
 import Settings from "./components/Settings";
+import JishoSearch from "./components/JishoSearch";
 
 const App: React.FC = () => {
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>(() => {
@@ -22,16 +23,30 @@ const App: React.FC = () => {
     return (savedTheme as Theme) || Theme.System;
   });
 
-  const handleJishoSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleJishoSearch = () => {
     if (jishoSearchTerm.trim()) {
       window.open(
         `https://jisho.org/search/${encodeURIComponent(jishoSearchTerm)}`,
         "_blank",
       );
-      setJishoSearchTerm(""); // Clear search term after opening Jisho
+      setJishoSearchTerm("");
     }
   };
+
+  useEffect(() => {
+    const handleTextSelection = () => {
+      const selectedText = window.getSelection()?.toString().trim();
+      if (selectedText) {
+        setJishoSearchTerm(selectedText);
+      }
+    };
+
+    document.addEventListener("selectionchange", handleTextSelection);
+
+    return () => {
+      document.removeEventListener("selectionchange", handleTextSelection);
+    };
+  }, []);
 
   const handleFetchFeedback = useCallback(
     async (entryId: string, text: string, level: JLPTLevel) => {
@@ -90,21 +105,6 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem("jlptLevel", jlptLevel);
   }, [jlptLevel]);
-
-  useEffect(() => {
-    const handleTextSelection = () => {
-      const selectedText = window.getSelection()?.toString().trim();
-      if (selectedText) {
-        setJishoSearchTerm(selectedText);
-      }
-    };
-
-    document.addEventListener("selectionchange", handleTextSelection);
-
-    return () => {
-      document.removeEventListener("selectionchange", handleTextSelection);
-    };
-  }, []);
 
   useEffect(() => {
     if (
@@ -175,34 +175,11 @@ const App: React.FC = () => {
             <div className="flex items-center">
               {!isChatOpen && !isSettingsOpen && (
                 <>
-                  <form
-                    onSubmit={handleJishoSearch}
-                    className="relative flex items-center mr-2"
-                  >
-                    <input
-                      type="text"
-                      value={jishoSearchTerm}
-                      onChange={(e) => setJishoSearchTerm(e.target.value)}
-                      placeholder="Search Jisho..."
-                      className="px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-40 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                    />
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-5 h-5 text-gray-400"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                        />
-                      </svg>
-                    </div>
-                  </form>
+                  <JishoSearch
+                    searchTerm={jishoSearchTerm}
+                    onSearchTermChange={setJishoSearchTerm}
+                    onSearch={handleJishoSearch}
+                  />
                   <button
                     onClick={() => setIsChatOpen(true)}
                     className="p-2 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -260,6 +237,8 @@ const App: React.FC = () => {
           journalEntries={journalEntries}
           isOpen={isChatOpen}
           onClose={() => setIsChatOpen(false)}
+          jishoSearchTerm={jishoSearchTerm}
+          onJishoSearchTermChange={setJishoSearchTerm}
         />
       </main>
     </div>

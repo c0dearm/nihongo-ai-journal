@@ -10,13 +10,23 @@ import {
   CloseIcon,
 } from "./Icons";
 
+import JishoSearch from "./JishoSearch";
+
 interface ChatProps {
   journalEntries: JournalEntry[];
   isOpen: boolean;
   onClose: () => void;
+  jishoSearchTerm: string;
+  onJishoSearchTermChange: (term: string) => void;
 }
 
-const Chat: React.FC<ChatProps> = ({ journalEntries, isOpen, onClose }) => {
+const Chat: React.FC<ChatProps> = ({
+  journalEntries,
+  isOpen,
+  onClose,
+  jishoSearchTerm,
+  onJishoSearchTermChange,
+}) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -165,13 +175,29 @@ ${journalContext}
               Ask me anything about your entries.
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-gray-400 dark:hover:bg-gray-700"
-            aria-label="Close chat"
-          >
-            <CloseIcon className="h-6 w-6" />
-          </button>
+          <div className="flex items-center">
+            <JishoSearch
+              searchTerm={jishoSearchTerm}
+              onSearchTermChange={onJishoSearchTermChange}
+              onSearch={() => {
+                if (jishoSearchTerm.trim()) {
+                  window.open(
+                    `https://jisho.org/search/${encodeURIComponent(
+                      jishoSearchTerm,
+                    )}`,
+                    "_blank",
+                  );
+                }
+              }}
+            />
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-gray-400 dark:hover:bg-gray-700"
+              aria-label="Close chat"
+            >
+              <CloseIcon className="h-6 w-6" />
+            </button>
+          </div>
         </div>
 
         <div className="flex-grow p-6 space-y-4 overflow-y-auto bg-gray-50 dark:bg-gray-900">
