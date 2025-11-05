@@ -205,8 +205,6 @@ const App: React.FC = () => {
         {isEntryFormOpen ? (
           <EntryForm
             addEntry={addJournalEntry}
-            jlptLevel={jlptLevel}
-            setJlptLevel={setJlptLevel}
             onEntryAdded={() => setIsEntryFormOpen(false)}
             onCancel={() => setIsEntryFormOpen(false)}
           />
@@ -231,6 +229,8 @@ const App: React.FC = () => {
           theme={theme}
           onThemeChange={setTheme}
           onExportJournal={handleExportJournal}
+          jlptLevel={jlptLevel}
+          onJlptLevelChange={setJlptLevel}
         />
 
         <Chat

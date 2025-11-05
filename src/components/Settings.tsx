@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { CloseIcon } from "./Icons";
-import { Theme } from "../types";
+import { JLPTLevel, Theme } from "../types";
+import JlptSelector from "./JlptSelector";
 
 interface SettingsProps {
   isOpen: boolean;
@@ -9,6 +10,8 @@ interface SettingsProps {
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
   onExportJournal: () => void;
+  jlptLevel: JLPTLevel;
+  onJlptLevelChange: (level: JLPTLevel) => void;
 }
 
 const Settings: React.FC<SettingsProps> = ({
@@ -18,6 +21,8 @@ const Settings: React.FC<SettingsProps> = ({
   theme,
   onThemeChange,
   onExportJournal,
+  jlptLevel,
+  onJlptLevelChange,
 }) => {
   const [apiKey, setApiKey] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -78,6 +83,12 @@ const Settings: React.FC<SettingsProps> = ({
               onChange={(e) => setApiKey(e.target.value)}
               className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
               placeholder="Enter your API key"
+            />
+          </div>
+          <div>
+            <JlptSelector
+              selectedLevel={jlptLevel}
+              onLevelChange={onJlptLevelChange}
             />
           </div>
           <div>

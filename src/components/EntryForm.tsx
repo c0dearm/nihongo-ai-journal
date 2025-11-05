@@ -1,21 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
-import { JLPTLevel } from "../types";
-import JlptSelector from "./JlptSelector";
 import { PlusIcon, LoaderIcon } from "./Icons";
 import { bind } from "wanakana";
 
 interface EntryFormProps {
   addEntry: (text: string) => void;
-  jlptLevel: JLPTLevel;
-  setJlptLevel: (level: JLPTLevel) => void;
   onEntryAdded: () => void; // Callback to close the form after adding an entry
   onCancel: () => void; // Callback to cancel adding an entry and return to journal
 }
 
 const EntryForm: React.FC<EntryFormProps> = ({
   addEntry,
-  jlptLevel,
-  setJlptLevel,
   onEntryAdded,
   onCancel,
 }) => {
@@ -47,13 +41,12 @@ const EntryForm: React.FC<EntryFormProps> = ({
         Add New Journal Entry
       </h2>
       <form onSubmit={handleSubmit}>
-        <JlptSelector selectedLevel={jlptLevel} onLevelChange={setJlptLevel} />
         <textarea
           ref={textareaRef}
           value={newEntryText}
           onChange={(e) => setNewEntryText(e.target.value)}
           placeholder="今日の出来事を書いてみましょう..."
-          className="w-full h-32 p-3 mt-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow resize-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+          className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow resize-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
           disabled={isSubmitting}
         />
         <button
