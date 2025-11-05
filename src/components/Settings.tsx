@@ -47,14 +47,11 @@ const Settings: React.FC<SettingsProps> = ({
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 sm:p-6 border-b flex justify-between items-center flex-shrink-0 dark:border-gray-700">
+        <div className="px-4 sm:px-6 lg:px-8 py-4 border-b flex justify-between items-center flex-shrink-0 dark:border-gray-700">
           <div>
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
               Settings
             </h2>
-            <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
-              Configure your application settings.
-            </p>
           </div>
           <button
             onClick={onClose}

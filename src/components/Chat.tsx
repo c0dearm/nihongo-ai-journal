@@ -166,14 +166,11 @@ ${journalContext}
         className={`fixed top-0 right-0 w-full max-w-lg h-full bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out dark:bg-gray-800 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 sm:p-6 border-b flex justify-between items-center flex-shrink-0 dark:border-gray-700">
+        <div className="px-4 sm:px-6 lg:px-8 py-4 border-b flex justify-between items-center flex-shrink-0 dark:border-gray-700">
           <div>
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-              Journal Chat
+              Chat
             </h2>
-            <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
-              Ask me anything about your entries.
-            </p>
           </div>
           <div className="flex items-center">
             <JishoSearch

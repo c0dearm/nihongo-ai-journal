@@ -183,7 +183,7 @@ const App: React.FC = () => {
                   <button
                     onClick={() => setIsChatOpen(true)}
                     className="p-2 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                    aria-label="Open journal chat"
+                    aria-label="Open chat"
                   >
                     <GeminiIcon className="w-6 h-6" />
                   </button>
