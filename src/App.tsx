@@ -4,9 +4,9 @@ import Journal from "./components/Journal";
 import Chat from "./components/Chat";
 import EntryForm from "./components/EntryForm";
 import { getJournalFeedback, setApiKey } from "./services/geminiService";
-import { GeminiIcon, SettingsIcon, PencilIcon } from "./components/Icons";
+import { PencilIcon } from "./components/Icons";
 import Settings from "./components/Settings";
-import JishoSearch from "./components/JishoSearch";
+import Header from "./components/Header";
 
 const App: React.FC = () => {
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>(() => {
@@ -17,39 +17,10 @@ const App: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isEntryFormOpen, setIsEntryFormOpen] = useState(false);
-  const [jishoSearchTerm, setJishoSearchTerm] = useState("");
   const [theme, setTheme] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem("theme");
     return (savedTheme as Theme) || Theme.System;
   });
-
-  const handleJishoSearch = () => {
-    if (jishoSearchTerm.trim()) {
-      window.open(
-        `https://jisho.org/search/${encodeURIComponent(jishoSearchTerm)}`,
-        "_blank",
-      );
-      setJishoSearchTerm("");
-    }
-  };
-
-  useEffect(() => {
-    const handleTextSelection = () => {
-      if (isEntryFormOpen) {
-        return; // Do not update jishoSearchTerm if EntryForm is open
-      }
-      const selectedText = window.getSelection()?.toString().trim();
-      if (selectedText) {
-        setJishoSearchTerm(selectedText);
-      }
-    };
-
-    document.addEventListener("selectionchange", handleTextSelection);
-
-    return () => {
-      document.removeEventListener("selectionchange", handleTextSelection);
-    };
-  }, [isEntryFormOpen]);
 
   const handleFetchFeedback = useCallback(
     async (entryId: string, text: string, level: JLPTLevel) => {
@@ -170,40 +141,10 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col dark:bg-gray-900">
-      <header className="bg-gray-100 shadow-sm sticky top-0 z-50 dark:bg-gray-700">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-800 flex items-center dark:text-gray-100">
-              <span className="text-red-500 mr-2">日本語</span>AIジャーナル
-            </h1>
-            <div className="flex items-center">
-              {!isChatOpen && !isSettingsOpen && (
-                <>
-                  <JishoSearch
-                    searchTerm={jishoSearchTerm}
-                    onSearchTermChange={setJishoSearchTerm}
-                    onSearch={handleJishoSearch}
-                  />
-                  <button
-                    onClick={() => setIsChatOpen(true)}
-                    className="p-2 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                    aria-label="Open chat"
-                  >
-                    <GeminiIcon className="w-6 h-6" />
-                  </button>
-                  <button
-                    onClick={() => setIsSettingsOpen(true)}
-                    className="p-2 rounded-full text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ml-2 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                    aria-label="Open settings"
-                  >
-                    <SettingsIcon className="w-6 h-6" />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header
+        onChatClick={() => setIsChatOpen(true)}
+        onSettingsClick={() => setIsSettingsOpen(true)}
+      />
 
       <main className="flex-grow container mx-auto py-4 px-0 sm:p-6 lg:p-8 relative">
         <Journal entries={journalEntries} onDeleteEntry={handleDeleteEntry} />
@@ -237,8 +178,6 @@ const App: React.FC = () => {
           journalEntries={journalEntries}
           isOpen={isChatOpen}
           onClose={() => setIsChatOpen(false)}
-          jishoSearchTerm={jishoSearchTerm}
-          onJishoSearchTermChange={setJishoSearchTerm}
         />
       </main>
     </div>

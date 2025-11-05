@@ -1,30 +1,40 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
-interface JishoSearchProps {
-  searchTerm: string;
-  onSearchTermChange: (term: string) => void;
-  onSearch: () => void;
-}
+const JishoSearch: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState("");
 
-const JishoSearch: React.FC<JishoSearchProps> = ({
-  searchTerm,
-  onSearchTermChange,
-  onSearch,
-}) => {
-  const handleJishoSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch();
+  const handleSearch = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (searchTerm.trim()) {
+      window.open(
+        `https://jisho.org/search/${encodeURIComponent(searchTerm)}`,
+        "_blank",
+      );
+      setSearchTerm("");
+    }
   };
 
+  useEffect(() => {
+    const handleTextSelection = () => {
+      const selectedText = window.getSelection()?.toString().trim();
+      if (selectedText) {
+        setSearchTerm(selectedText);
+      }
+    };
+
+    document.addEventListener("selectionchange", handleTextSelection);
+
+    return () => {
+      document.removeEventListener("selectionchange", handleTextSelection);
+    };
+  }, []);
+
   return (
-    <form
-      onSubmit={handleJishoSearch}
-      className="relative flex items-center mr-2"
-    >
+    <form onSubmit={handleSearch} className="relative flex items-center mr-2">
       <input
         type="text"
         value={searchTerm}
-        onChange={(e) => onSearchTermChange(e.target.value)}
+        onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search Jisho..."
         className="px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-40 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
       />

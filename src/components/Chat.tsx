@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { JournalEntry, ChatMessage } from "../types";
-import { GoogleGenAI, Chat as GeminiChat } from "@google/genai";
+import { startChat, sendChatMessage } from "../services/geminiService";
 import { bind } from "wanakana";
 import {
   UserIcon,
@@ -10,27 +10,16 @@ import {
   CloseIcon,
 } from "./Icons";
 
-import JishoSearch from "./JishoSearch";
-
 interface ChatProps {
   journalEntries: JournalEntry[];
   isOpen: boolean;
   onClose: () => void;
-  jishoSearchTerm: string;
-  onJishoSearchTermChange: (term: string) => void;
 }
 
-const Chat: React.FC<ChatProps> = ({
-  journalEntries,
-  isOpen,
-  onClose,
-  jishoSearchTerm,
-  onJishoSearchTermChange,
-}) => {
+const Chat: React.FC<ChatProps> = ({ journalEntries, isOpen, onClose }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const chatRef = useRef<GeminiChat | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const isInitialMount = useRef(true);
@@ -48,40 +37,14 @@ const Chat: React.FC<ChatProps> = ({
   useEffect(scrollToBottom, [messages]);
 
   useEffect(() => {
-    const apiKey = localStorage.getItem("geminiApiKey");
-    if (!apiKey) {
-      console.error("Gemini API key not found in local storage.");
-      return;
+    if (isOpen) {
+      try {
+        startChat(journalEntries);
+      } catch (error) {
+        console.error("Failed to start chat:", error);
+      }
     }
-
-    const ai = new GoogleGenAI({ apiKey });
-    const journalContext = journalEntries
-      .map(
-        (entry) =>
-          `Date: ${new Date(
-            entry.date,
-          ).toLocaleDateString()}\nEntry:\n${entry.originalText}\n---`,
-      )
-      .join("\n\n");
-
-    const systemInstruction = `You are a helpful and friendly Japanese language tutor. 
-The user is maintaining a journal to practice Japanese. 
-You will answer questions they have about their journal entries. 
-Here are their entries so far, use them as context for your answers.
-Do not mention this context instruction unless the user asks for it.
----
-CONTEXT:
-${journalContext}
----
-`;
-
-    chatRef.current = ai.chats.create({
-      model: "gemini-2.5-flash",
-      config: {
-        systemInstruction: systemInstruction,
-      },
-    });
-  }, [journalEntries]);
+  }, [isOpen, journalEntries]);
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -120,22 +83,15 @@ ${journalContext}
     setIsLoading(true);
 
     try {
-      if (!chatRef.current) throw new Error("Chat not initialized");
-
-      const stream = await chatRef.current.sendMessageStream({
-        message: text,
-      });
-
       let modelResponse = "";
-
-      for await (const chunk of stream) {
-        modelResponse += chunk.text;
+      await sendChatMessage(text, (chunk) => {
+        modelResponse += chunk;
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === modelMessageId ? { ...msg, text: modelResponse } : msg,
           ),
         );
-      }
+      });
     } catch (error) {
       console.error("Error sending chat message:", error);
       const errorMessage = "Sorry, I encountered an error. Please try again.";
@@ -167,20 +123,6 @@ ${journalContext}
             </h2>
           </div>
           <div className="flex items-center">
-            <JishoSearch
-              searchTerm={jishoSearchTerm}
-              onSearchTermChange={onJishoSearchTermChange}
-              onSearch={() => {
-                if (jishoSearchTerm.trim()) {
-                  window.open(
-                    `https://jisho.org/search/${encodeURIComponent(
-                      jishoSearchTerm,
-                    )}`,
-                    "_blank",
-                  );
-                }
-              }}
-            />
             <button
               onClick={onClose}
               className="p-2 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-gray-400 dark:hover:bg-gray-700"
@@ -219,7 +161,7 @@ ${journalContext}
                   {msg.role === "model" && msg.text === "" && isLoading ? (
                     <div className="flex items-center justify-center space-x-1.5 h-5">
                       <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-pulse [animation-delay:-0.3s]"></div>
-                      <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-pulse [animation-delay:-0.15s]"></div>
+                      <div className="w-1.e h-1.5 bg-gray-500 rounded-full animate-pulse [animation-delay:-0.15s]"></div>
                       <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-pulse"></div>
                     </div>
                   ) : (

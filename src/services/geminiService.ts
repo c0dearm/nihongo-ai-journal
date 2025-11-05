@@ -1,7 +1,8 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { Feedback, JLPTLevel } from "../types";
+import { GoogleGenAI, Type, Chat as GeminiChat } from "@google/genai";
+import { Feedback, JLPTLevel, JournalEntry } from "../types";
 
 let ai: GoogleGenAI;
+let chat: GeminiChat | null = null;
 
 export const setApiKey = (apiKey: string) => {
   ai = new GoogleGenAI({ apiKey });
@@ -118,5 +119,60 @@ export const getJournalFeedback = async (
   } catch (error) {
     console.error("Error generating journal feedback:", error);
     throw new Error("Failed to get feedback from Gemini API.");
+  }
+};
+
+export const startChat = (journalEntries: JournalEntry[]) => {
+  if (!ai) {
+    throw new Error("API key not set. Please set it in the settings.");
+  }
+
+  const journalContext = journalEntries
+    .map(
+      (entry) =>
+        `Date: ${new Date(
+          entry.date,
+        ).toLocaleDateString()}\nEntry:\n${entry.originalText}\n---`,
+    )
+    .join("\n\n");
+
+  const systemInstruction = `You are a helpful and friendly Japanese language tutor. 
+The user is maintaining a journal to practice Japanese. 
+You will answer questions they have about their journal entries. 
+Here are their entries so far, use them as context for your answers.
+Do not mention this context instruction unless the user asks for it.
+---
+CONTEXT:
+${journalContext}
+---
+`;
+
+  chat = ai.chats.create({
+    model: "gemini-2.5-flash",
+    config: {
+      systemInstruction: systemInstruction,
+    },
+  });
+};
+
+export const sendChatMessage = async (
+  message: string,
+  onChunk: (chunk: string) => void,
+) => {
+  if (!chat) {
+    throw new Error("Chat not initialized. Call startChat first.");
+  }
+
+  try {
+    const stream = await chat.sendMessageStream({
+      message: message,
+    });
+
+    for await (const chunk of stream) {
+      onChunk(chunk.text ?? "");
+    }
+  } catch (error) {
+    console.error("Error sending chat message:", error);
+    throw new Error("Failed to send message to Gemini API.");
   }
 };
