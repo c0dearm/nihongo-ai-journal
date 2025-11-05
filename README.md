@@ -51,12 +51,13 @@
     ├── style.css            # Global styles for the application.
     ├── types.ts             # TypeScript type definitions.
     ├── components/          # Reusable UI components.
-    │   ├── Chat.tsx         # Component for AI chat interactions.
+    │   ├── Chat.tsx         # Component for AI chat interactions, including Jisho search.
+    │   ├── EntryForm.tsx    # Component for submitting new journal entries.
     │   ├── Icons.tsx        # Defines SVG icons used in the application.
+    │   ├── JishoSearch.tsx  # Component for searching Jisho.org.
     │   ├── JlptSelector.tsx # Component for selecting JLPT levels.
     │   ├── Journal.tsx      # Component for displaying and managing journal entries.
-    │   └── Settings.tsx     # Component for application settings (e.g., API key).
-    └── services/            # Service layer for API interactions.
+    │   └── Settings.tsx     # Component for application settings (e.g., API key).    └── services/            # Service layer for API interactions.
         └── geminiService.ts # Handles communication with the Google Gemini API.
 ```
 
