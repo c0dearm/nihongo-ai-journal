@@ -55,7 +55,7 @@ const EntryForm: React.FC<EntryFormProps> = ({ isOpen, onClose, addEntry }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex justify-center items-center">
       <div
         ref={modalRef}
         className="relative p-6 bg-white rounded-xl shadow-lg dark:bg-gray-800 dark:border dark:border-gray-700 max-w-lg w-full mx-4"
