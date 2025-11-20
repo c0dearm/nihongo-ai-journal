@@ -100,16 +100,17 @@ export const ChatView: React.FC = () => {
             </div>
           ))
         )}
-        {isChatLoading && chatMessages[chatMessages.length - 1]?.role !== "model" && (
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-              <GeminiIcon className="w-5 h-5" />
+        {isChatLoading &&
+          chatMessages[chatMessages.length - 1]?.role !== "model" && (
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                <GeminiIcon className="w-5 h-5" />
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none border border-gray-100 dark:border-gray-700 shadow-sm">
+                <LoaderIcon className="w-5 h-5 animate-spin text-gray-400" />
+              </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none border border-gray-100 dark:border-gray-700 shadow-sm">
-              <LoaderIcon className="w-5 h-5 animate-spin text-gray-400" />
-            </div>
-          </div>
-        )}
+          )}
         {(chatMessages.length > 0 || isChatLoading) && (
           <div ref={messagesEndRef} />
         )}

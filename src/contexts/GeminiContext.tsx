@@ -178,7 +178,7 @@ Answer questions about their journal or Japanese in general.`;
 
       for await (const chunk of stream) {
         const text = chunk.text || "";
-        
+
         if (isFirstChunk) {
           if (!text) continue; // Skip empty initial chunks
           setChatMessages((prev) => [
