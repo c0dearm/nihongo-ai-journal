@@ -169,20 +169,30 @@ Answer questions about their journal or Japanese in general.`;
     try {
       // Create a placeholder for the model response
       const modelMsgId = (Date.now() + 1).toString();
-      setChatMessages((prev) => [
-        ...prev,
-        { id: modelMsgId, role: "model", text: "" },
-      ]);
+      // We wait for the first chunk to add the message to the state
+      // to avoid showing an empty bubble along with the loading spinner.
 
       const stream = await chatRef.current.sendMessageStream({ message });
 
+      let isFirstChunk = true;
+
       for await (const chunk of stream) {
         const text = chunk.text || "";
-        setChatMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === modelMsgId ? { ...msg, text: msg.text + text } : msg,
-          ),
-        );
+        
+        if (isFirstChunk) {
+          if (!text) continue; // Skip empty initial chunks
+          setChatMessages((prev) => [
+            ...prev,
+            { id: modelMsgId, role: "model", text: text },
+          ]);
+          isFirstChunk = false;
+        } else {
+          setChatMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === modelMsgId ? { ...msg, text: msg.text + text } : msg,
+            ),
+          );
+        }
       }
     } catch (error) {
       console.error("Chat error", error);

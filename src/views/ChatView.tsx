@@ -76,10 +76,11 @@ export const ChatView: React.FC = () => {
               className={`flex items-start gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
             >
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === "user"
+                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                  msg.role === "user"
                     ? "bg-indigo-100 text-indigo-600"
                     : "bg-emerald-100 text-emerald-600"
-                  }`}
+                }`}
               >
                 {msg.role === "user" ? (
                   <UserIcon className="w-5 h-5" />
@@ -88,17 +89,18 @@ export const ChatView: React.FC = () => {
                 )}
               </div>
               <div
-                className={`p-3 rounded-lg max-w-[80%] text-sm leading-relaxed whitespace-pre-wrap ${msg.role === "user"
+                className={`p-3 rounded-lg max-w-[80%] text-sm leading-relaxed whitespace-pre-wrap ${
+                  msg.role === "user"
                     ? "bg-indigo-600 text-white rounded-tr-none"
                     : "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-tl-none shadow-sm"
-                  }`}
+                }`}
               >
                 {msg.text}
               </div>
             </div>
           ))
         )}
-        {isChatLoading && (
+        {isChatLoading && chatMessages[chatMessages.length - 1]?.role !== "model" && (
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
               <GeminiIcon className="w-5 h-5" />
@@ -108,7 +110,9 @@ export const ChatView: React.FC = () => {
             </div>
           </div>
         )}
-        {(chatMessages.length > 0 || isChatLoading) && <div ref={messagesEndRef} />}
+        {(chatMessages.length > 0 || isChatLoading) && (
+          <div ref={messagesEndRef} />
+        )}
       </div>
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
