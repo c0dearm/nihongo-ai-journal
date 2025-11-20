@@ -75,10 +75,12 @@ export const JournalEntryCard: React.FC<JournalEntryCardProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="text-gray-400 hover:text-red-600 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/20 h-8 w-8 p-0 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
-            onDelete(entry.id);
+            if (window.confirm("Are you sure you want to delete this entry?")) {
+              onDelete(entry.id);
+            }
           }}
         >
           <TrashIcon className="h-4 w-4" />
