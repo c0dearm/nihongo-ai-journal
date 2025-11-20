@@ -7,7 +7,7 @@ import { JournalEntryCard } from "../components/JournalEntryCard";
 import { EntryEditor } from "../components/EntryEditor";
 import { EntryDetailModal } from "../components/EntryDetailModal";
 import { Button } from "../components/ui/Button";
-import { PlusIcon, CalendarIcon } from "../components/ui/Icons";
+import { PlusIcon, CalendarIcon, BookOpenIcon } from "../components/ui/Icons";
 
 // Custom Input for DatePicker
 const DatePickerInput = React.forwardRef<
@@ -91,7 +91,7 @@ export const JournalView: React.FC = () => {
         {filteredEntries.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-gray-200 rounded-xl dark:border-gray-800">
             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-full mb-4">
-              <PlusIcon className="h-8 w-8 text-gray-400" />
+              <BookOpenIcon className="h-8 w-8 text-gray-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
               No entries found

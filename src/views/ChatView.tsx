@@ -5,9 +5,10 @@ import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import {
   SendIcon,
-  GeminiIcon,
   UserIcon,
   LoaderIcon,
+  ChatBubbleIcon,
+  SparklesIcon,
 } from "../components/ui/Icons";
 
 export const ChatView: React.FC = () => {
@@ -50,7 +51,7 @@ export const ChatView: React.FC = () => {
   if (!isApiKeySet) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-        <GeminiIcon className="w-12 h-12 text-gray-300 mb-4" />
+        <ChatBubbleIcon className="w-12 h-12 text-gray-300 mb-4" />
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
           API Key Required
         </h3>
@@ -66,7 +67,7 @@ export const ChatView: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         {chatMessages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center opacity-50">
-            <GeminiIcon className="w-12 h-12 mb-4" />
+            <ChatBubbleIcon className="w-12 h-12 mb-4" />
             <p>Ask me anything about your Japanese journal entries!</p>
           </div>
         ) : (
@@ -85,7 +86,7 @@ export const ChatView: React.FC = () => {
                 {msg.role === "user" ? (
                   <UserIcon className="w-5 h-5" />
                 ) : (
-                  <GeminiIcon className="w-5 h-5" />
+                  <SparklesIcon className="w-5 h-5" />
                 )}
               </div>
               <div
@@ -104,7 +105,7 @@ export const ChatView: React.FC = () => {
           chatMessages[chatMessages.length - 1]?.role !== "model" && (
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                <GeminiIcon className="w-5 h-5" />
+                <SparklesIcon className="w-5 h-5" />
               </div>
               <div className="bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none border border-gray-100 dark:border-gray-700 shadow-sm">
                 <LoaderIcon className="w-5 h-5 animate-spin text-gray-400" />

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import {
   BookOpenIcon,
-  GeminiIcon,
+  ChatBubbleIcon,
+  ChartLineIcon,
   SettingsIcon,
-  SparklesIcon,
   UserIcon,
 } from "../ui/Icons";
 import { cn } from "../../lib/utils";
@@ -22,8 +22,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const navItems = [
     { id: "journal", label: "Journal", icon: BookOpenIcon },
-    { id: "chat", label: "Chat", icon: GeminiIcon },
-    { id: "stats", label: "Stats", icon: SparklesIcon },
+    { id: "chat", label: "Chat", icon: ChatBubbleIcon },
+    { id: "stats", label: "Stats", icon: ChartLineIcon },
     { id: "settings", label: "Settings", icon: SettingsIcon },
   ];
 
