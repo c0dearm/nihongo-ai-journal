@@ -108,7 +108,7 @@ export const ChatView: React.FC = () => {
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
+        {(chatMessages.length > 0 || isChatLoading) && <div ref={messagesEndRef} />}
       </div>
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
