@@ -19,7 +19,7 @@ export interface Feedback {
     explanation: string;
   }[];
   overallComment: string;
-  jlptScore: number;
+  overallScore: number;
 }
 
 export interface JournalEntry {
@@ -49,3 +49,5 @@ export enum LocalStorageKeys {
   jlptLevel = "jlptLevel",
   theme = "theme",
 }
+
+export type View = 'journal' | 'chat' | 'stats' | 'settings';
