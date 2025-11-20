@@ -55,7 +55,7 @@ export const ChatView: React.FC = () => {
           API Key Required
         </h3>
         <p className="text-gray-500 dark:text-gray-400 max-w-sm mt-2">
-          Please add your Gemini API key in Settings to use the AI Tutor.
+          Please add your Gemini API key in Settings to use the chat.
         </p>
       </div>
     );
@@ -76,11 +76,10 @@ export const ChatView: React.FC = () => {
               className={`flex items-start gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
             >
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                  msg.role === "user"
+                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === "user"
                     ? "bg-indigo-100 text-indigo-600"
                     : "bg-emerald-100 text-emerald-600"
-                }`}
+                  }`}
               >
                 {msg.role === "user" ? (
                   <UserIcon className="w-5 h-5" />
@@ -89,11 +88,10 @@ export const ChatView: React.FC = () => {
                 )}
               </div>
               <div
-                className={`p-3 rounded-lg max-w-[80%] text-sm leading-relaxed whitespace-pre-wrap ${
-                  msg.role === "user"
+                className={`p-3 rounded-lg max-w-[80%] text-sm leading-relaxed whitespace-pre-wrap ${msg.role === "user"
                     ? "bg-indigo-600 text-white rounded-tr-none"
                     : "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-tl-none shadow-sm"
-                }`}
+                  }`}
               >
                 {msg.text}
               </div>

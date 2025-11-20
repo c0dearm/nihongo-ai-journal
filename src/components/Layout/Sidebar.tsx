@@ -22,8 +22,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const navItems = [
     { id: "journal", label: "Journal", icon: BookOpenIcon },
-    { id: "chat", label: "AI Tutor", icon: GeminiIcon },
-    { id: "stats", label: "Progress", icon: SparklesIcon },
+    { id: "chat", label: "Chat", icon: GeminiIcon },
+    { id: "stats", label: "Stats", icon: SparklesIcon },
     { id: "settings", label: "Settings", icon: SettingsIcon },
   ];
 
