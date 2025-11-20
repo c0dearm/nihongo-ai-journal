@@ -1,19 +1,30 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useGemini } from '../contexts/GeminiContext';
-import { useJournal } from '../contexts/JournalContext';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { SendIcon, GeminiIcon, UserIcon, LoaderIcon } from '../components/ui/Icons';
+import React, { useEffect, useState, useRef } from "react";
+import { useGemini } from "../contexts/GeminiContext";
+import { useJournal } from "../contexts/JournalContext";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
+import {
+  SendIcon,
+  GeminiIcon,
+  UserIcon,
+  LoaderIcon,
+} from "../components/ui/Icons";
 
 export const ChatView: React.FC = () => {
-  const { startChat, sendChatMessage, chatMessages, isChatLoading, isApiKeySet } = useGemini();
+  const {
+    startChat,
+    sendChatMessage,
+    chatMessages,
+    isChatLoading,
+    isApiKeySet,
+  } = useGemini();
   const { entries } = useJournal();
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isApiKeySet) {
-      // Start chat only if not already started or if context changed? 
+      // Start chat only if not already started or if context changed?
       // For simplicity, start on mount to ensure fresh context.
       startChat(entries);
     }
@@ -30,77 +41,96 @@ export const ChatView: React.FC = () => {
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || isChatLoading) return;
-    
+
     const msg = input;
-    setInput('');
+    setInput("");
     await sendChatMessage(msg);
   };
 
   if (!isApiKeySet) {
-      return (
-          <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-              <GeminiIcon className="w-12 h-12 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">API Key Required</h3>
-              <p className="text-gray-500 dark:text-gray-400 max-w-sm mt-2">
-                  Please add your Gemini API key in Settings to use the AI Tutor.
-              </p>
-          </div>
-      );
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+        <GeminiIcon className="w-12 h-12 text-gray-300 mb-4" />
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          API Key Required
+        </h3>
+        <p className="text-gray-500 dark:text-gray-400 max-w-sm mt-2">
+          Please add your Gemini API key in Settings to use the AI Tutor.
+        </p>
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] md:h-[calc(100vh-60px)]">
-       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-         {chatMessages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center opacity-50">
-              <GeminiIcon className="w-12 h-12 mb-4" />
-              <p>Ask me anything about your Japanese journal entries!</p>
-            </div>
-         ) : (
-            chatMessages.map((msg) => (
-              <div key={msg.id} className={`flex items-start gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                 <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                    msg.role === 'user' ? 'bg-indigo-100 text-indigo-600' : 'bg-emerald-100 text-emerald-600'
-                 }`}>
-                    {msg.role === 'user' ? <UserIcon className="w-5 h-5" /> : <GeminiIcon className="w-5 h-5" />}
-                 </div>
-                 <div className={`p-3 rounded-lg max-w-[80%] text-sm leading-relaxed whitespace-pre-wrap ${
-                    msg.role === 'user' 
-                      ? 'bg-indigo-600 text-white rounded-tr-none' 
-                      : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-tl-none shadow-sm'
-                 }`}>
-                    {msg.text}
-                 </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+        {chatMessages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center opacity-50">
+            <GeminiIcon className="w-12 h-12 mb-4" />
+            <p>Ask me anything about your Japanese journal entries!</p>
+          </div>
+        ) : (
+          chatMessages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex items-start gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                  msg.role === "user"
+                    ? "bg-indigo-100 text-indigo-600"
+                    : "bg-emerald-100 text-emerald-600"
+                }`}
+              >
+                {msg.role === "user" ? (
+                  <UserIcon className="w-5 h-5" />
+                ) : (
+                  <GeminiIcon className="w-5 h-5" />
+                )}
               </div>
-            ))
-         )}
-         {isChatLoading && (
-            <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                   <GeminiIcon className="w-5 h-5" />
-                </div>
-                <div className="bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none border border-gray-100 dark:border-gray-700 shadow-sm">
-                   <LoaderIcon className="w-5 h-5 animate-spin text-gray-400" />
-                </div>
+              <div
+                className={`p-3 rounded-lg max-w-[80%] text-sm leading-relaxed whitespace-pre-wrap ${
+                  msg.role === "user"
+                    ? "bg-indigo-600 text-white rounded-tr-none"
+                    : "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-tl-none shadow-sm"
+                }`}
+              >
+                {msg.text}
+              </div>
             </div>
-         )}
-         <div ref={messagesEndRef} />
-       </div>
+          ))
+        )}
+        {isChatLoading && (
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+              <GeminiIcon className="w-5 h-5" />
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg rounded-tl-none border border-gray-100 dark:border-gray-700 shadow-sm">
+              <LoaderIcon className="w-5 h-5 animate-spin text-gray-400" />
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
 
-       <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
-          <form onSubmit={handleSend} className="flex gap-2 max-w-3xl mx-auto">
-             <Input 
-               value={input} 
-               onChange={(e) => setInput(e.target.value)} 
-               placeholder="Ask a question..." 
-               className="flex-1"
-               disabled={isChatLoading}
-             />
-             <Button type="submit" disabled={!input.trim() || isChatLoading} size="icon">
-                <SendIcon className="w-5 h-5" />
-             </Button>
-          </form>
-       </div>
+      <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+        <form onSubmit={handleSend} className="flex gap-2 max-w-3xl mx-auto">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask a question..."
+            className="flex-1"
+            disabled={isChatLoading}
+          />
+          <Button
+            type="submit"
+            disabled={!input.trim() || isChatLoading}
+            size="icon"
+          >
+            <SendIcon className="w-5 h-5" />
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };

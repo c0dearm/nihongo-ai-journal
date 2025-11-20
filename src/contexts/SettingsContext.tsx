@@ -1,5 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { JLPTLevel, Theme, LocalStorageKeys } from '../types';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { JLPTLevel, Theme, LocalStorageKeys } from "../types";
 
 interface SettingsContextType {
   jlptLevel: JLPTLevel;
@@ -10,27 +16,37 @@ interface SettingsContextType {
   setApiKey: (key: string) => void;
 }
 
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+const SettingsContext = createContext<SettingsContextType | undefined>(
+  undefined,
+);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSettings = () => {
   const context = useContext(SettingsContext);
   if (!context) {
-    throw new Error('useSettings must be used within a SettingsProvider');
+    throw new Error("useSettings must be used within a SettingsProvider");
   }
   return context;
 };
 
-export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [jlptLevel, setJlptLevel] = useState<JLPTLevel>(() => {
-    return (localStorage.getItem(LocalStorageKeys.jlptLevel) as JLPTLevel) || JLPTLevel.N5;
+    return (
+      (localStorage.getItem(LocalStorageKeys.jlptLevel) as JLPTLevel) ||
+      JLPTLevel.N5
+    );
   });
 
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem(LocalStorageKeys.theme) as Theme) || Theme.System;
+    return (
+      (localStorage.getItem(LocalStorageKeys.theme) as Theme) || Theme.System
+    );
   });
 
   const [apiKey, setApiKey] = useState<string>(() => {
-    return localStorage.getItem(LocalStorageKeys.geminiApiKey) || '';
+    return localStorage.getItem(LocalStorageKeys.geminiApiKey) || "";
   });
 
   useEffect(() => {
@@ -39,10 +55,13 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
+    root.classList.remove("light", "dark");
 
     if (theme === Theme.System) {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
       root.classList.add(systemTheme);
     } else {
       root.classList.add(theme);
@@ -57,7 +76,9 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [apiKey]);
 
   return (
-    <SettingsContext.Provider value={{ jlptLevel, setJlptLevel, theme, setTheme, apiKey, setApiKey }}>
+    <SettingsContext.Provider
+      value={{ jlptLevel, setJlptLevel, theme, setTheme, apiKey, setApiKey }}
+    >
       {children}
     </SettingsContext.Provider>
   );

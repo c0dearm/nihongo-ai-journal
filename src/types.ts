@@ -50,4 +50,4 @@ export enum LocalStorageKeys {
   theme = "theme",
 }
 
-export type View = 'journal' | 'chat' | 'stats' | 'settings';
+export type View = "journal" | "chat" | "stats" | "settings";

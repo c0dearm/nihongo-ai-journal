@@ -1,7 +1,15 @@
-import React, { createContext, useContext, useCallback, useRef, useState, ReactNode, useEffect } from 'react';
-import { GoogleGenAI, Chat as GeminiChat, Type } from '@google/genai';
-import { Feedback, JLPTLevel, JournalEntry, ChatMessage } from '../types';
-import { useSettings } from './SettingsContext';
+import React, {
+  createContext,
+  useContext,
+  useCallback,
+  useRef,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import { GoogleGenAI, Chat as GeminiChat, Type } from "@google/genai";
+import { Feedback, JLPTLevel, JournalEntry, ChatMessage } from "../types";
+import { useSettings } from "./SettingsContext";
 
 interface GeminiContextType {
   ai: GoogleGenAI | null;
@@ -16,10 +24,11 @@ interface GeminiContextType {
 
 const GeminiContext = createContext<GeminiContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useGemini = () => {
   const context = useContext(GeminiContext);
   if (!context) {
-    throw new Error('useGemini must be used within a GeminiProvider');
+    throw new Error("useGemini must be used within a GeminiProvider");
   }
   return context;
 };
@@ -55,10 +64,18 @@ const feedbackSchema = {
     overallComment: { type: Type.STRING },
     overallScore: { type: Type.INTEGER, minimum: 0, maximum: 100 },
   },
-  required: ["correctedText", "grammarFeedback", "vocabularyFeedback", "overallComment", "overallScore"],
+  required: [
+    "correctedText",
+    "grammarFeedback",
+    "vocabularyFeedback",
+    "overallComment",
+    "overallScore",
+  ],
 };
 
-export const GeminiProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const GeminiProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const { apiKey } = useSettings();
   const [ai, setAi] = useState<GoogleGenAI | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -74,11 +91,12 @@ export const GeminiProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, [apiKey]);
 
-  const getJournalFeedback = useCallback(async (text: string, level: JLPTLevel): Promise<Feedback> => {
-    if (!ai) throw new Error("API key not set");
-    setIsLoading(true);
+  const getJournalFeedback = useCallback(
+    async (text: string, level: JLPTLevel): Promise<Feedback> => {
+      if (!ai) throw new Error("API key not set");
+      setIsLoading(true);
 
-    const prompt = `
+      const prompt = `
       Act as a Japanese language teacher. Analyze this journal entry by a ${level} student.
       Provide feedback in JSON. Explanations in English.
       Entry:
@@ -87,78 +105,113 @@ export const GeminiProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       ---
     `;
 
-    try {
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: feedbackSchema,
-        },
-      });
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: prompt,
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: feedbackSchema,
+          },
+        });
 
-      const jsonString = response.text?.trim();
-      if (!jsonString) throw new Error("Empty response");
-      return JSON.parse(jsonString);
-    } catch (error) {
-      console.error("Feedback generation failed", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [ai]);
+        const jsonString = response.text?.trim();
+        if (!jsonString) throw new Error("Empty response");
+        return JSON.parse(jsonString);
+      } catch (error) {
+        console.error("Feedback generation failed", error);
+        throw error;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [ai],
+  );
 
-  const startChat = useCallback((journalEntries: JournalEntry[]) => {
-    if (!ai) return;
+  const startChat = useCallback(
+    (journalEntries: JournalEntry[]) => {
+      if (!ai) return;
 
-    const context = journalEntries
-      .map(e => `Date: ${new Date(e.date).toLocaleDateString()}\nEntry:\n${e.originalText}\n---`)
-      .join("\n\n");
+      const context = journalEntries
+        .map(
+          (e) =>
+            `Date: ${new Date(e.date).toLocaleDateString()}\nEntry:\n${e.originalText}\n---`,
+        )
+        .join("\n\n");
 
-    const systemInstruction = `You are a helpful Japanese tutor.
+      const systemInstruction = `You are a helpful Japanese tutor.
 User's journal entries for context:
 ---
 ${context}
 ---
 Answer questions about their journal or Japanese in general.`;
 
-    chatRef.current = ai.chats.create({
-      model: "gemini-2.5-flash",
-      config: { systemInstruction },
-    });
-    setChatMessages([]); // Reset on start or maybe keep? Reset is safer for new context.
-  }, [ai]);
+      chatRef.current = ai.chats.create({
+        model: "gemini-2.5-flash",
+        config: { systemInstruction },
+      });
+      setChatMessages([]); // Reset on start or maybe keep? Reset is safer for new context.
+    },
+    [ai],
+  );
 
   const sendChatMessage = useCallback(async (message: string) => {
     if (!chatRef.current) throw new Error("Chat not started");
 
-    const userMsg: ChatMessage = { id: Date.now().toString(), role: 'user', text: message };
-    setChatMessages(prev => [...prev, userMsg]);
+    const userMsg: ChatMessage = {
+      id: Date.now().toString(),
+      role: "user",
+      text: message,
+    };
+    setChatMessages((prev) => [...prev, userMsg]);
     setIsChatLoading(true);
 
     try {
       // Create a placeholder for the model response
       const modelMsgId = (Date.now() + 1).toString();
-      setChatMessages(prev => [...prev, { id: modelMsgId, role: 'model', text: '' }]);
+      setChatMessages((prev) => [
+        ...prev,
+        { id: modelMsgId, role: "model", text: "" },
+      ]);
 
       const stream = await chatRef.current.sendMessageStream({ message });
 
       for await (const chunk of stream) {
         const text = chunk.text || "";
-        setChatMessages(prev => prev.map(msg =>
-          msg.id === modelMsgId ? { ...msg, text: msg.text + text } : msg
-        ));
+        setChatMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === modelMsgId ? { ...msg, text: msg.text + text } : msg,
+          ),
+        );
       }
     } catch (error) {
       console.error("Chat error", error);
-      setChatMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', text: "Error: Failed to send message." }]);
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: "model",
+          text: "Error: Failed to send message.",
+        },
+      ]);
     } finally {
       setIsChatLoading(false);
     }
   }, []);
 
   return (
-    <GeminiContext.Provider value={{ ai, isApiKeySet: !!ai, getJournalFeedback, startChat, sendChatMessage, isLoading, chatMessages, isChatLoading }}>
+    <GeminiContext.Provider
+      value={{
+        ai,
+        isApiKeySet: !!ai,
+        getJournalFeedback,
+        startChat,
+        sendChatMessage,
+        isLoading,
+        chatMessages,
+        isChatLoading,
+      }}
+    >
       {children}
     </GeminiContext.Provider>
   );

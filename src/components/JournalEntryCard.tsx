@@ -1,8 +1,14 @@
-import React from 'react';
-import { JournalEntry } from '../types';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/Card';
-import { Button } from './ui/Button';
-import { LoaderIcon, TrashIcon, SparklesIcon } from './ui/Icons';
+import React from "react";
+import { JournalEntry } from "../types";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "./ui/Card";
+import { Button } from "./ui/Button";
+import { LoaderIcon, TrashIcon } from "./ui/Icons";
 
 interface JournalEntryCardProps {
   entry: JournalEntry;
@@ -10,12 +16,16 @@ interface JournalEntryCardProps {
   onClick: (id: string) => void;
 }
 
-export const JournalEntryCard: React.FC<JournalEntryCardProps> = ({ entry, onDelete, onClick }) => {
+export const JournalEntryCard: React.FC<JournalEntryCardProps> = ({
+  entry,
+  onDelete,
+  onClick,
+}) => {
   const date = new Date(entry.date).toLocaleDateString(undefined, {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 
   return (
@@ -25,18 +35,27 @@ export const JournalEntryCard: React.FC<JournalEntryCardProps> = ({ entry, onDel
     >
       <CardHeader className="flex flex-row items-start justify-between pb-2">
         <div className="space-y-1">
-          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{date}</span>
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            {date}
+          </span>
           <CardTitle className="text-lg line-clamp-1 text-gray-900 dark:text-gray-50">
-            {entry.originalText.split('\n')[0] || 'Untitled Entry'}
+            {entry.originalText.split("\n")[0] || "Untitled Entry"}
           </CardTitle>
         </div>
         <div className="flex items-center space-x-2">
-          {entry.isLoading && <LoaderIcon className="h-4 w-4 animate-spin text-indigo-500" />}
+          {entry.isLoading && (
+            <LoaderIcon className="h-4 w-4 animate-spin text-indigo-500" />
+          )}
           {entry.feedback?.overallScore !== undefined && (
-            <span className={`text-xs font-bold px-2 py-1 rounded-full ${entry.feedback.overallScore >= 80 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                entry.feedback.overallScore >= 60 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
-                  'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-              }`}>
+            <span
+              className={`text-xs font-bold px-2 py-1 rounded-full ${
+                entry.feedback.overallScore >= 80
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                  : entry.feedback.overallScore >= 60
+                    ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                    : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+              }`}
+            >
               {entry.feedback.overallScore}/100
             </span>
           )}
@@ -49,13 +68,18 @@ export const JournalEntryCard: React.FC<JournalEntryCardProps> = ({ entry, onDel
       </CardContent>
       <CardFooter className="flex justify-between pt-2 text-xs text-gray-500">
         <div className="flex items-center gap-1">
-          <span className="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs font-mono">{entry.jlptLevel}</span>
+          <span className="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs font-mono">
+            {entry.jlptLevel}
+          </span>
         </div>
         <Button
           variant="ghost"
           size="sm"
           className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={(e) => { e.stopPropagation(); onDelete(entry.id); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(entry.id);
+          }}
         >
           <TrashIcon className="h-4 w-4" />
         </Button>
