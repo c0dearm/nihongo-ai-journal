@@ -1,10 +1,31 @@
+const workletCode = `
+class PCMProcessor extends AudioWorkletProcessor {
+  process(inputs, outputs, parameters) {
+    const input = inputs[0];
+    if (input.length > 0) {
+      const inputData = input[0];
+      const pcmData = new Int16Array(inputData.length);
+      for (let i = 0; i < inputData.length; i++) {
+        const s = Math.max(-1, Math.min(1, inputData[i]));
+        pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+      }
+      this.port.postMessage(pcmData);
+    }
+    return true;
+  }
+}
+registerProcessor('pcm-processor', PCMProcessor);
+`;
+
 export class AudioRecorder {
   private stream: MediaStream | null = null;
   private audioContext: AudioContext | null = null;
-  private processor: ScriptProcessorNode | null = null;
+  private processor: AudioWorkletNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
   private onDataAvailable: (data: string) => void;
   public sampleRate: number = 16000; // Default, updated on start
+  private audioBuffer: Int16Array[] = [];
+  private bufferSize = 0;
 
   constructor(onDataAvailable: (data: string) => void) {
     this.onDataAvailable = onDataAvailable;
@@ -18,54 +39,62 @@ export class AudioRecorder {
       // Get the sample rate to send to the API
       this.sampleRate = this.audioContext.sampleRate;
 
+      const blob = new Blob([workletCode], { type: "application/javascript" });
+      const blobUrl = URL.createObjectURL(blob);
+      await this.audioContext.audioWorklet.addModule(blobUrl);
+      URL.revokeObjectURL(blobUrl);
+
       this.source = this.audioContext.createMediaStreamSource(this.stream);
-      // Buffer size 4096 provides a good balance between latency and performance
-      this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
+      this.processor = new AudioWorkletNode(this.audioContext, "pcm-processor");
 
-      this.processor.onaudioprocess = (e) => {
-        const inputData = e.inputBuffer.getChannelData(0);
-        // Convert Float32 to Int16
-        const pcmData = new Int16Array(inputData.length);
-        for (let i = 0; i < inputData.length; i++) {
-          // Clamp values to [-1, 1]
-          const s = Math.max(-1, Math.min(1, inputData[i]));
-          // Convert to 16-bit PCM
-          pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+      this.processor.port.onmessage = (e) => {
+        const data = e.data as Int16Array;
+        this.audioBuffer.push(data);
+        this.bufferSize += data.length;
+
+        if (this.bufferSize >= 4096) {
+          this.flush();
         }
-
-        // Convert to base64
-        const buffer = pcmData.buffer;
-        let binary = "";
-        const bytes = new Uint8Array(buffer);
-        const len = bytes.byteLength;
-        for (let i = 0; i < len; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
-        const base64 = btoa(binary);
-
-        this.onDataAvailable(base64);
       };
 
       this.source.connect(this.processor);
-      this.processor.connect(this.audioContext.destination); // Connect to destination to keep it alive, but mute it if needed (though capturing mic usually doesn't output to speakers by default unless connected)
-
-      // Actually, connecting processor to destination might cause feedback if not careful.
-      // But ScriptProcessor needs to be connected to output to fire events in some browsers.
-      // A safer way is to connect to a GainNode with gain 0.
-      const gainNode = this.audioContext.createGain();
-      gainNode.gain.value = 0;
-      this.processor.connect(gainNode);
-      gainNode.connect(this.audioContext.destination);
+      this.processor.connect(this.audioContext.destination); // Keep alive
     } catch (error) {
       console.error("Error starting audio recording:", error);
       throw error;
     }
   }
 
+  private flush() {
+    if (this.bufferSize === 0) return;
+
+    const merged = new Int16Array(this.bufferSize);
+    let offset = 0;
+    for (const chunk of this.audioBuffer) {
+      merged.set(chunk, offset);
+      offset += chunk.length;
+    }
+
+    // Convert to base64
+    const buffer = merged.buffer;
+    let binary = "";
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    // Using a more efficient approach for large strings if needed, but loop is fine for 8KB
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    const base64 = btoa(binary);
+
+    this.onDataAvailable(base64);
+
+    this.audioBuffer = [];
+    this.bufferSize = 0;
+  }
+
   stop() {
     if (this.processor) {
       this.processor.disconnect();
-      this.processor.onaudioprocess = null;
       this.processor = null;
     }
     if (this.source) {
@@ -80,6 +109,8 @@ export class AudioRecorder {
       this.audioContext.close();
       this.audioContext = null;
     }
+    this.audioBuffer = [];
+    this.bufferSize = 0;
   }
 }
 

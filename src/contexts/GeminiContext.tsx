@@ -373,7 +373,7 @@ Answer questions about their journal or Japanese in general.`;
           if (history.length > 0)
             // Send history as initial client content to set context
             session.sendClientContent({
-              turns: history,
+              turns: [...history, { role: "user", parts: [{ text: "" }] }],
               turnComplete: true,
             });
 
