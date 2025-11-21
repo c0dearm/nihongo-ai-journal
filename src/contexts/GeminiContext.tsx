@@ -7,7 +7,12 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { GoogleGenAI, Chat as GeminiChat, Type, LiveSession, Modality } from "@google/genai";
+import {
+  GoogleGenAI,
+  Chat as GeminiChat,
+  Type,
+  Modality,
+} from "@google/genai";
 import { Feedback, JLPTLevel, JournalEntry, ChatMessage } from "../types";
 import { useSettings } from "./SettingsContext";
 import { AudioRecorder, AudioPlayer } from "../lib/audio-utils";
@@ -88,7 +93,8 @@ export const GeminiProvider: React.FC<{ children: ReactNode }> = ({
 
   // Live API state
   const [isLiveActive, setIsLiveActive] = useState(false);
-  const liveSessionRef = useRef<LiveSession | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const liveSessionRef = useRef<any | null>(null);
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const audioPlayerRef = useRef<AudioPlayer | null>(null);
 
@@ -218,8 +224,9 @@ Answer questions about their journal or Japanese in general.`;
     }
   }, []);
 
-  const toggleLive = useCallback(async (journalEntries: JournalEntry[]) => {
-    if (isLiveActive) {
+  const toggleLive = useCallback(
+    async (journalEntries: JournalEntry[]) => {
+      if (isLiveActive) {
         // Stop
         liveSessionRef.current?.close();
         liveSessionRef.current = null;
@@ -228,17 +235,17 @@ Answer questions about their journal or Japanese in general.`;
         audioPlayerRef.current?.stop();
         audioPlayerRef.current = null;
         setIsLiveActive(false);
-    } else {
+      } else {
         // Start
         if (!ai) return;
 
         const recorder = new AudioRecorder((base64Data) => {
-            if (liveSessionRef.current) {
-                liveSessionRef.current.sendRealtimeInput({
-                    mimeType: `audio/pcm;rate=${recorder.sampleRate}`,
-                    data: base64Data
-                });
-            }
+          if (liveSessionRef.current) {
+            liveSessionRef.current.sendRealtimeInput({
+              mimeType: `audio/pcm;rate=${recorder.sampleRate}`,
+              data: base64Data,
+            });
+          }
         });
 
         const player = new AudioPlayer();
@@ -247,15 +254,15 @@ Answer questions about their journal or Japanese in general.`;
         audioRecorderRef.current = recorder;
 
         const context = journalEntries
-            .map(
-                (e) =>
-                    `Date: ${new Date(e.date).toLocaleDateString()}\nEntry:\n${e.originalText}\n---`,
-            )
-            .join("\n\n");
+          .map(
+            (e) =>
+              `Date: ${new Date(e.date).toLocaleDateString()}\nEntry:\n${e.originalText}\n---`,
+          )
+          .join("\n\n");
 
-        const history = chatMessages.map(msg => ({
-            role: msg.role,
-            parts: [{ text: msg.text }]
+        const history = chatMessages.map((msg) => ({
+          role: msg.role,
+          parts: [{ text: msg.text }],
         }));
 
         const systemInstruction = `You are a helpful Japanese tutor.
@@ -266,87 +273,117 @@ ${context}
 Answer questions about their journal or Japanese in general.`;
 
         try {
-            const session = await ai.live.connect({
-                model: "gemini-2.5-flash-native-audio-preview-09-2025",
-                config: {
-                    responseModalities: [Modality.AUDIO],
-                    systemInstruction: { parts: [{ text: systemInstruction }] },
-                    inputAudioTranscription: {},
-                    outputAudioTranscription: {},
-                },
-                callbacks: {
-                    onopen: () => {
-                        console.log("Live session opened");
-                        setIsLiveActive(true);
-                    },
-                    onmessage: (msg) => {
-                        // Handle audio playback
-                        if (msg.serverContent?.modelTurn?.parts) {
-                            for (const part of msg.serverContent.modelTurn.parts) {
-                                if (part.inlineData && part.inlineData.mimeType.startsWith("audio/")) {
-                                    player.play(part.inlineData.data);
-                                }
-                            }
-                        }
-
-                        // Handle output transcription (AI)
-                        if (msg.serverContent?.outputTranscription?.text) {
-                            const text = msg.serverContent.outputTranscription.text;
-                            setChatMessages(prev => {
-                                const lastMsg = prev[prev.length - 1];
-                                // Assume if the last message is 'model' and recent, we append
-                                if (lastMsg && lastMsg.role === 'model' && lastMsg.id.startsWith('live-model')) {
-                                    return prev.map(m => m.id === lastMsg.id ? { ...m, text: m.text + text } : m);
-                                } else {
-                                    return [...prev, { id: `live-model-${Date.now()}`, role: 'model', text }];
-                                }
-                            });
-                        }
-
-                        // Handle input transcription (User)
-                        if (msg.serverContent?.inputTranscription?.text) {
-                            const text = msg.serverContent.inputTranscription.text;
-                            setChatMessages(prev => {
-                                const lastMsg = prev[prev.length - 1];
-                                if (lastMsg && lastMsg.role === 'user' && lastMsg.id.startsWith('live-user')) {
-                                    return prev.map(m => m.id === lastMsg.id ? { ...m, text: m.text + text } : m);
-                                } else {
-                                    return [...prev, { id: `live-user-${Date.now()}`, role: 'user', text }];
-                                }
-                            });
-                        }
-                    },
-                    onclose: () => {
-                        setIsLiveActive(false);
-                        console.log("Live session closed");
-                    },
-                    onerror: (err) => {
-                        console.error("Live session error", err);
-                        setIsLiveActive(false);
+          const session = await ai.live.connect({
+            model: "gemini-2.5-flash-native-audio-preview-09-2025",
+            config: {
+              responseModalities: [Modality.AUDIO],
+              systemInstruction: { parts: [{ text: systemInstruction }] },
+              inputAudioTranscription: {},
+              outputAudioTranscription: {},
+            },
+            callbacks: {
+              onopen: () => {
+                console.log("Live session opened");
+                setIsLiveActive(true);
+              },
+              onmessage: (msg) => {
+                // Handle audio playback
+                if (msg.serverContent?.modelTurn?.parts) {
+                  for (const part of msg.serverContent.modelTurn.parts) {
+                    if (
+                      part.inlineData &&
+                      part.inlineData.mimeType?.startsWith("audio/") &&
+                      part.inlineData.data
+                    ) {
+                      player.play(part.inlineData.data);
                     }
+                  }
                 }
-            });
-            
-            liveSessionRef.current = session;
 
-            // Send history as initial client content to set context
-            if (history.length > 0) {
-                session.sendClientContent({ turns: history });
-            }
-            // Send initial message to trigger AI response
-            session.sendClientContent({
-                turns: [{ role: "user", parts: [{ text: "I've started the live session. Please greet me." }] }],
-                turnComplete: true
-            });
+                // Handle output transcription (AI)
+                if (msg.serverContent?.outputTranscription?.text) {
+                  const text = msg.serverContent.outputTranscription.text;
+                  setChatMessages((prev) => {
+                    const lastMsg = prev[prev.length - 1];
+                    // Assume if the last message is 'model' and recent, we append
+                    if (
+                      lastMsg &&
+                      lastMsg.role === "model" &&
+                      lastMsg.id.startsWith("live-model")
+                    ) {
+                      return prev.map((m) =>
+                        m.id === lastMsg.id ? { ...m, text: m.text + text } : m,
+                      );
+                    } else {
+                      return [
+                        ...prev,
+                        { id: `live-model-${Date.now()}`, role: "model", text },
+                      ];
+                    }
+                  });
+                }
 
-            await recorder.start();
+                // Handle input transcription (User)
+                if (msg.serverContent?.inputTranscription?.text) {
+                  const text = msg.serverContent.inputTranscription.text;
+                  setChatMessages((prev) => {
+                    const lastMsg = prev[prev.length - 1];
+                    if (
+                      lastMsg &&
+                      lastMsg.role === "user" &&
+                      lastMsg.id.startsWith("live-user")
+                    ) {
+                      return prev.map((m) =>
+                        m.id === lastMsg.id ? { ...m, text: m.text + text } : m,
+                      );
+                    } else {
+                      return [
+                        ...prev,
+                        { id: `live-user-${Date.now()}`, role: "user", text },
+                      ];
+                    }
+                  });
+                }
+              },
+              onclose: () => {
+                setIsLiveActive(false);
+                console.log("Live session closed");
+              },
+              onerror: (err) => {
+                console.error("Live session error", err);
+                setIsLiveActive(false);
+              },
+            },
+          });
 
+          liveSessionRef.current = session;
+
+          // Send history as initial client content to set context
+          if (history.length > 0) {
+            session.sendClientContent({ turns: history });
+          }
+          // Send initial message to trigger AI response
+          session.sendClientContent({
+            turns: [
+              {
+                role: "user",
+                parts: [
+                  { text: "I've started the live session. Please greet me." },
+                ],
+              },
+            ],
+            turnComplete: true,
+          });
+
+          await recorder.start();
         } catch (e) {
-            console.error("Failed to start live session", e);
-            setIsLiveActive(false);
+          console.error("Failed to start live session", e);
+          setIsLiveActive(false);
         }
-    }
-  }, [ai, isLiveActive, chatMessages]);
+      }
+    },
+    [ai, isLiveActive, chatMessages],
+  );
 
   return (
     <GeminiContext.Provider

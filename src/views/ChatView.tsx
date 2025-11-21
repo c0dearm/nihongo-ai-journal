@@ -123,11 +123,19 @@ export const ChatView: React.FC = () => {
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
         <form onSubmit={handleSend} className="flex gap-2 max-w-3xl mx-auto">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask a question..."
+            className="flex-1"
+            disabled={isChatLoading}
+          />
           <Button
             type="button"
             variant={isLiveActive ? "danger" : "outline"}
             size="icon"
             onClick={() => toggleLive(entries)}
+            className={isLiveActive ? "animate-pulse" : "text-indigo-500 border-indigo-200 hover:bg-indigo-50 dark:text-indigo-400 dark:border-indigo-800 dark:hover:bg-indigo-900/50"}
             title={isLiveActive ? "Stop Live Session" : "Start Live Session"}
           >
             {isLiveActive ? (
@@ -136,13 +144,6 @@ export const ChatView: React.FC = () => {
               <MicrophoneIcon className="w-5 h-5" />
             )}
           </Button>
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask a question..."
-            className="flex-1"
-            disabled={isChatLoading}
-          />
           <Button
             type="submit"
             disabled={!input.trim() || isChatLoading}

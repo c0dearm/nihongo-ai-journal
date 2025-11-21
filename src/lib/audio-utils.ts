@@ -14,10 +14,10 @@ export class AudioRecorder {
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       this.audioContext = new AudioContext();
-      
+
       // Get the sample rate to send to the API
       this.sampleRate = this.audioContext.sampleRate;
-      
+
       this.source = this.audioContext.createMediaStreamSource(this.stream);
       // Buffer size 4096 provides a good balance between latency and performance
       this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
@@ -30,26 +30,26 @@ export class AudioRecorder {
           // Clamp values to [-1, 1]
           const s = Math.max(-1, Math.min(1, inputData[i]));
           // Convert to 16-bit PCM
-          pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+          pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
         }
-        
+
         // Convert to base64
         const buffer = pcmData.buffer;
-        let binary = '';
+        let binary = "";
         const bytes = new Uint8Array(buffer);
         const len = bytes.byteLength;
         for (let i = 0; i < len; i++) {
           binary += String.fromCharCode(bytes[i]);
         }
         const base64 = btoa(binary);
-        
+
         this.onDataAvailable(base64);
       };
 
       this.source.connect(this.processor);
       this.processor.connect(this.audioContext.destination); // Connect to destination to keep it alive, but mute it if needed (though capturing mic usually doesn't output to speakers by default unless connected)
-      
-      // Actually, connecting processor to destination might cause feedback if not careful. 
+
+      // Actually, connecting processor to destination might cause feedback if not careful.
       // But ScriptProcessor needs to be connected to output to fire events in some browsers.
       // A safer way is to connect to a GainNode with gain 0.
       const gainNode = this.audioContext.createGain();
@@ -73,7 +73,7 @@ export class AudioRecorder {
       this.source = null;
     }
     if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
+      this.stream.getTracks().forEach((track) => track.stop());
       this.stream = null;
     }
     if (this.audioContext) {
@@ -85,12 +85,10 @@ export class AudioRecorder {
 
 export class AudioPlayer {
   private audioContext: AudioContext | null = null;
-  private isPlaying = false;
-  private queue: Float32Array[] = [];
   private scheduledTime = 0;
 
   constructor() {
-    // Initialize AudioContext lazily or on user interaction if possible, 
+    // Initialize AudioContext lazily or on user interaction if possible,
     // but for now we'll create it when playback is requested or session starts.
   }
 
@@ -103,7 +101,7 @@ export class AudioPlayer {
 
   async start() {
     const context = this.getContext();
-    if (context.state === 'suspended') {
+    if (context.state === "suspended") {
       await context.resume();
     }
   }
@@ -113,15 +111,15 @@ export class AudioPlayer {
     const len = binaryString.length;
     const bytes = new Uint8Array(len);
     for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
+      bytes[i] = binaryString.charCodeAt(i);
     }
-    
+
     const int16Data = new Int16Array(bytes.buffer);
     const float32Data = new Float32Array(int16Data.length);
-    
+
     for (let i = 0; i < int16Data.length; i++) {
-        // Convert Int16 to Float32 [-1, 1]
-        float32Data[i] = int16Data[i] / 32768.0;
+      // Convert Int16 to Float32 [-1, 1]
+      float32Data[i] = int16Data[i] / 32768.0;
     }
 
     this.queueAudio(float32Data);
@@ -129,20 +127,20 @@ export class AudioPlayer {
 
   private queueAudio(data: Float32Array) {
     const context = this.getContext();
-    
+
     const buffer = context.createBuffer(1, data.length, 24000);
     buffer.getChannelData(0).set(data);
-    
+
     const source = context.createBufferSource();
     source.buffer = buffer;
     source.connect(context.destination);
-    
+
     const currentTime = context.currentTime;
-    
+
     if (this.scheduledTime < currentTime) {
-        this.scheduledTime = currentTime;
+      this.scheduledTime = currentTime;
     }
-    
+
     source.start(this.scheduledTime);
     this.scheduledTime += buffer.duration;
   }
@@ -152,7 +150,6 @@ export class AudioPlayer {
       this.audioContext.close();
       this.audioContext = null;
     }
-    this.queue = [];
     this.scheduledTime = 0;
   }
 }
