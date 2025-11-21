@@ -9,6 +9,8 @@ import {
   LoaderIcon,
   ChatBubbleIcon,
   SparklesIcon,
+  MicrophoneIcon,
+  StopIcon,
 } from "../components/ui/Icons";
 
 export const ChatView: React.FC = () => {
@@ -18,6 +20,8 @@ export const ChatView: React.FC = () => {
     chatMessages,
     isChatLoading,
     isApiKeySet,
+    isLiveActive,
+    toggleLive,
   } = useGemini();
   const { entries } = useJournal();
   const [input, setInput] = useState("");
@@ -119,6 +123,19 @@ export const ChatView: React.FC = () => {
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
         <form onSubmit={handleSend} className="flex gap-2 max-w-3xl mx-auto">
+          <Button
+            type="button"
+            variant={isLiveActive ? "danger" : "outline"}
+            size="icon"
+            onClick={() => toggleLive(entries)}
+            title={isLiveActive ? "Stop Live Session" : "Start Live Session"}
+          >
+            {isLiveActive ? (
+              <StopIcon className="w-5 h-5" />
+            ) : (
+              <MicrophoneIcon className="w-5 h-5" />
+            )}
+          </Button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
