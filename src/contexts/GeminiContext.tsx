@@ -7,12 +7,7 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import {
-  GoogleGenAI,
-  Chat as GeminiChat,
-  Type,
-  Modality,
-} from "@google/genai";
+import { GoogleGenAI, Chat as GeminiChat, Type, Modality } from "@google/genai";
 import { Feedback, JLPTLevel, JournalEntry, ChatMessage } from "../types";
 import { useSettings } from "./SettingsContext";
 import { AudioRecorder, AudioPlayer } from "../lib/audio-utils";
@@ -224,19 +219,37 @@ Answer questions about their journal or Japanese in general.`;
     }
   }, []);
 
+  const stopLiveSession = useCallback(async () => {
+    const session = liveSessionRef.current;
+    liveSessionRef.current = null;
+    setIsLiveActive(false);
+
+    if (session) {
+      try {
+        await session.close();
+      } catch (e) {
+        console.warn("Error closing session", e);
+      }
+    }
+
+    if (audioRecorderRef.current) {
+      audioRecorderRef.current.stop();
+      audioRecorderRef.current = null;
+    }
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.stop();
+      audioPlayerRef.current = null;
+    }
+  }, []);
+
   const toggleLive = useCallback(
     async (journalEntries: JournalEntry[]) => {
       if (isLiveActive) {
-        // Stop
-        liveSessionRef.current?.close();
-        liveSessionRef.current = null;
-        audioRecorderRef.current?.stop();
-        audioRecorderRef.current = null;
-        audioPlayerRef.current?.stop();
-        audioPlayerRef.current = null;
-        setIsLiveActive(false);
+        await stopLiveSession();
       } else {
-        // Start
+        // Ensure clean state
+        await stopLiveSession();
+
         if (!ai) return;
 
         const recorder = new AudioRecorder((base64Data) => {
@@ -305,7 +318,6 @@ Answer questions about their journal or Japanese in general.`;
                   const text = msg.serverContent.outputTranscription.text;
                   setChatMessages((prev) => {
                     const lastMsg = prev[prev.length - 1];
-                    // Assume if the last message is 'model' and recent, we append
                     if (
                       lastMsg &&
                       lastMsg.role === "model" &&
@@ -346,43 +358,33 @@ Answer questions about their journal or Japanese in general.`;
                 }
               },
               onclose: () => {
-                setIsLiveActive(false);
                 console.log("Live session closed");
+                stopLiveSession();
               },
               onerror: (err) => {
                 console.error("Live session error", err);
-                setIsLiveActive(false);
+                stopLiveSession();
               },
             },
           });
 
           liveSessionRef.current = session;
 
-          // Send history as initial client content to set context
-          if (history.length > 0) {
-            session.sendClientContent({ turns: history });
-          }
-          // Send initial message to trigger AI response
-          session.sendClientContent({
-            turns: [
-              {
-                role: "user",
-                parts: [
-                  { text: "I've started the live session. Please greet me." },
-                ],
-              },
-            ],
-            turnComplete: true,
-          });
+          if (history.length > 0)
+            // Send history as initial client content to set context
+            session.sendClientContent({
+              turns: history,
+              turnComplete: true,
+            });
 
           await recorder.start();
         } catch (e) {
           console.error("Failed to start live session", e);
-          setIsLiveActive(false);
+          await stopLiveSession();
         }
       }
     },
-    [ai, isLiveActive, chatMessages],
+    [ai, isLiveActive, chatMessages, stopLiveSession],
   );
 
   return (
