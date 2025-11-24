@@ -123,13 +123,24 @@ export const ChatView: React.FC = () => {
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
         <form onSubmit={handleSend} className="flex gap-2 max-w-3xl mx-auto">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={isLiveActive ? "Listening..." : "Ask a question..."}
-            className="flex-1"
-            disabled={isChatLoading || isLiveActive}
-          />
+          <div className="relative flex-1">
+            {isLiveActive && (
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                <MicrophoneIcon className="w-5 h-5 text-emerald-500 animate-pulse" />
+              </div>
+            )}
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={isLiveActive ? "Listening..." : "Ask a question..."}
+              className={`w-full transition-all duration-200 ${
+                isLiveActive
+                  ? "!pl-10 !border-emerald-400 dark:!border-emerald-500 !bg-emerald-50 dark:!bg-emerald-900/20 placeholder:!text-emerald-400 dark:placeholder:!text-emerald-300 animate-pulse disabled:!opacity-100"
+                  : ""
+              }`}
+              disabled={isChatLoading || isLiveActive}
+            />
+          </div>
           <Button
             type="button"
             variant={isLiveActive ? "danger" : "outline"}
