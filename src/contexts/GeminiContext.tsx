@@ -95,7 +95,9 @@ export const GeminiProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     if (apiKey) {
-      setAi(new GoogleGenAI({ apiKey }));
+      setAi(
+        new GoogleGenAI({ apiKey, httpOptions: { apiVersion: "v1alpha" } }),
+      );
     } else {
       setAi(null);
     }
@@ -293,8 +295,13 @@ Answer questions about their journal or Japanese in general.`;
             config: {
               responseModalities: [Modality.AUDIO],
               systemInstruction: { parts: [{ text: systemInstruction }] },
+              speechConfig: {
+                voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
+              },
               inputAudioTranscription: {},
               outputAudioTranscription: {},
+              enableAffectiveDialog: true,
+              proactivity: { proactiveAudio: true },
             },
             callbacks: {
               onopen: () => {
