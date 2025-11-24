@@ -255,8 +255,10 @@ Answer questions about their journal or Japanese in general.`;
         const recorder = new AudioRecorder((base64Data) => {
           if (liveSessionRef.current) {
             liveSessionRef.current.sendRealtimeInput({
-              mimeType: `audio/pcm;rate=${recorder.sampleRate}`,
-              data: base64Data,
+              media: {
+                mimeType: `audio/pcm;rate=${recorder.sampleRate}`,
+                data: base64Data,
+              },
             });
           }
         });
