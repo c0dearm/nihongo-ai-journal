@@ -117,6 +117,7 @@ export class AudioRecorder {
 export class AudioPlayer {
   private audioContext: AudioContext | null = null;
   private scheduledTime = 0;
+  private sources: AudioBufferSourceNode[] = [];
 
   constructor() {
     // Initialize AudioContext lazily or on user interaction if possible,
@@ -174,9 +175,31 @@ export class AudioPlayer {
 
     source.start(this.scheduledTime);
     this.scheduledTime += buffer.duration;
+
+    this.sources.push(source);
+    source.onended = () => {
+      this.sources = this.sources.filter((s) => s !== source);
+    };
+  }
+
+  interrupt() {
+    this.sources.forEach((source) => {
+      try {
+        source.stop();
+      } catch {
+        // Ignore errors if already stopped
+      }
+    });
+    this.sources = [];
+    if (this.audioContext) {
+      this.scheduledTime = this.audioContext.currentTime;
+    } else {
+      this.scheduledTime = 0;
+    }
   }
 
   stop() {
+    this.interrupt();
     if (this.audioContext) {
       this.audioContext.close();
       this.audioContext = null;

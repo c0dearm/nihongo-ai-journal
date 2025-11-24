@@ -305,10 +305,14 @@ Answer questions about their journal or Japanese in general.`;
             },
             callbacks: {
               onopen: () => {
-                console.log("Live session opened");
                 setIsLiveActive(true);
               },
               onmessage: (msg) => {
+                // Handle interruption
+                if (msg.serverContent?.interrupted) {
+                  player.interrupt();
+                }
+
                 // Handle audio playback
                 if (msg.serverContent?.modelTurn?.parts) {
                   for (const part of msg.serverContent.modelTurn.parts) {
@@ -367,7 +371,6 @@ Answer questions about their journal or Japanese in general.`;
                 }
               },
               onclose: () => {
-                console.log("Live session closed");
                 stopLiveSession();
               },
               onerror: (err) => {
