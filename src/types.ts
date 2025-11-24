@@ -48,6 +48,7 @@ export enum LocalStorageKeys {
   geminiApiKey = "geminiApiKey",
   jlptLevel = "jlptLevel",
   theme = "theme",
+  preferredVoice = "preferredVoice",
 }
 
 export type View = "journal" | "chat" | "stats" | "settings";

@@ -10,10 +10,19 @@ import {
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { JLPTLevel, Theme } from "../types";
+import { AVAILABLE_VOICES } from "../lib/voices";
 
 export const SettingsView: React.FC = () => {
-  const { apiKey, setApiKey, jlptLevel, setJlptLevel, theme, setTheme } =
-    useSettings();
+  const {
+    apiKey,
+    setApiKey,
+    jlptLevel,
+    setJlptLevel,
+    theme,
+    setTheme,
+    preferredVoice,
+    setPreferredVoice,
+  } = useSettings();
   const { exportJournal } = useJournal();
   const [keyInput, setKeyInput] = useState(apiKey);
   const [isSaved, setIsSaved] = useState(false);
@@ -72,6 +81,41 @@ export const SettingsView: React.FC = () => {
                 }`}
               >
                 {level}
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Voice Preference</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-500 mb-4">
+            Select the voice for the live chat session.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+            {AVAILABLE_VOICES.map((voice) => (
+              <button
+                key={voice.name}
+                onClick={() => setPreferredVoice(voice.name)}
+                className={`p-3 rounded-lg text-left text-sm font-medium transition-colors border flex flex-col ${
+                  preferredVoice === voice.name
+                    ? "bg-indigo-600 text-white border-indigo-600"
+                    : "bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <span className="font-bold">{voice.name}</span>
+                <span
+                  className={`text-xs ${
+                    preferredVoice === voice.name
+                      ? "text-indigo-200"
+                      : "text-gray-500"
+                  }`}
+                >
+                  {voice.characteristics}
+                </span>
               </button>
             ))}
           </div>

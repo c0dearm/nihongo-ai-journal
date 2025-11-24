@@ -79,7 +79,7 @@ const feedbackSchema = {
 export const GeminiProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const { apiKey } = useSettings();
+  const { apiKey, preferredVoice } = useSettings();
   const [ai, setAi] = useState<GoogleGenAI | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -296,7 +296,9 @@ Answer questions about their journal or Japanese in general.`;
               responseModalities: [Modality.AUDIO],
               systemInstruction: { parts: [{ text: systemInstruction }] },
               speechConfig: {
-                voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
+                voiceConfig: {
+                  prebuiltVoiceConfig: { voiceName: preferredVoice },
+                },
               },
               inputAudioTranscription: {},
               outputAudioTranscription: {},
@@ -396,7 +398,7 @@ Answer questions about their journal or Japanese in general.`;
         }
       }
     },
-    [ai, isLiveActive, chatMessages, stopLiveSession],
+    [ai, isLiveActive, chatMessages, preferredVoice, stopLiveSession],
   );
 
   return (

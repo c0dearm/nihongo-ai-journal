@@ -12,6 +12,8 @@ interface SettingsContextType {
   setJlptLevel: (level: JLPTLevel) => void;
   theme: Theme;
   setTheme: (theme: Theme) => void;
+  preferredVoice: string;
+  setPreferredVoice: (voice: string) => void;
   apiKey: string;
   setApiKey: (key: string) => void;
 }
@@ -45,6 +47,10 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
     );
   });
 
+  const [preferredVoice, setPreferredVoice] = useState<string>(() => {
+    return localStorage.getItem(LocalStorageKeys.preferredVoice) || "Kore";
+  });
+
   const [apiKey, setApiKey] = useState<string>(() => {
     return localStorage.getItem(LocalStorageKeys.geminiApiKey) || "";
   });
@@ -70,6 +76,10 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
   }, [theme]);
 
   useEffect(() => {
+    localStorage.setItem(LocalStorageKeys.preferredVoice, preferredVoice);
+  }, [preferredVoice]);
+
+  useEffect(() => {
     if (apiKey) {
       localStorage.setItem(LocalStorageKeys.geminiApiKey, apiKey);
     }
@@ -77,7 +87,16 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <SettingsContext.Provider
-      value={{ jlptLevel, setJlptLevel, theme, setTheme, apiKey, setApiKey }}
+      value={{
+        jlptLevel,
+        setJlptLevel,
+        theme,
+        setTheme,
+        apiKey,
+        setApiKey,
+        preferredVoice,
+        setPreferredVoice,
+      }}
     >
       {children}
     </SettingsContext.Provider>
